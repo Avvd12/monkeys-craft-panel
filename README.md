@@ -4,8 +4,7 @@ Painel web para gerenciamento do servidor de Minecraft e do bot do Discord do **
 
 [🇧🇷 Português](README.md) · [🇺🇸 English](README.en.md)
 
-![Painel](<img width="1906" height="964" alt="image" src="https://github.com/user-attachments/assets/be98ab90-69cf-4c86-9cb9-78ea074a283a" />
-)
+![Painel](<img width="1906" height="964" alt="image" src="https://github.com/user-attachments/assets/be98ab90-69cf-4c86-9cb9-78ea074a283a" />)
 (<img width="1902" height="964" alt="image" src="https://github.com/user-attachments/assets/4171abaa-8141-45ba-9d8f-73f74a516a3c" />)
 (<img width="1903" height="964" alt="image" src="https://github.com/user-attachments/assets/750f08ed-002e-492a-8fee-599995ff928b" />)
 
