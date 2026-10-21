@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar · Monkey's Craft</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+  <style>
+    :root {
+      --accent: #ffc629;
+      --accent-orange: #ff7a1a;
+      --bg: #1a1a1c;
+      --surface: #222225;
+      --card-bg: #28282c;
+      --border-subtle: #333338;
+      --border-strong: #3d3d44;
+      --text-main: #ffffff;
+      --text-secondary: #9a9aa2;
+      --text-muted: #6a6a72;
+      --erro: #ef4444;
+      --font-display: 'Chakra Petch', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(255, 198, 41, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(255, 122, 26, 0.06) 0%, transparent 45%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 2.25rem 2rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .login-logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #2b2b30, #1f1f23);
+      border: 1px solid var(--border-strong);
+      object-fit: contain;
+      margin-bottom: 0.75rem;
+    }
+    .login-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffc629 20%, #ff7a1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+    .login-subtitle {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+    .login-field {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.9rem;
+    }
+    .login-field span {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .login-field input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      padding: 0.65rem 0.8rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .login-field input:focus {
+      border-color: var(--accent);
+    }
+    .login-erro {
+      width: 100%;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      font-size: 0.82rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.9rem;
+    }
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #ffc629, #ff7a1a);
+      border: none;
+      border-radius: 8px;
+      color: #111113;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: filter 0.15s ease, transform 0.1s ease;
+      margin-top: 0.35rem;
+    }
+    .login-btn:hover:not(:disabled) { filter: brightness(1.08); }
+    .login-btn:active:not(:disabled) { transform: translateY(1px); }
+    .login-btn:disabled { opacity: 0.6; cursor: wait; }
+    .login-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .login-rodape {
+      margin-top: 1.25rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <form class="login-card" id="loginForm">
+    <img class="login-logo" src="assets/logo.png" alt="Logo Monkey's Craft">
+    <h1 class="login-title">Monkey's Craft</h1>
+    <p class="login-subtitle">Painel de controle</p>
+
+    <label class="login-field">
+      <span>Usuário</span>
+      <input type="text" id="usuario" name="usuario" autocomplete="username" required>
+    </label>
+
+    <label class="login-field">
+      <span>Senha</span>
+      <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+    </label>
+
+    <p class="login-erro" id="loginErro" role="alert" hidden></p>
+
+    <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
+
+    <p class="login-rodape">Acesso restrito à administração.</p>
+  </form>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const campoUsuario = document.getElementById('usuario');
+    const campoSenha = document.getElementById('senha');
+    const caixaErro = document.getElementById('loginErro');
+    const botao = document.getElementById('loginBtn');
+
+    function mostrarErro(texto) {
+      caixaErro.textContent = texto;
+      caixaErro.hidden = false;
+    }
+
+    form.addEventListener('submit', async function (evento) {
+      evento.preventDefault();
+      caixaErro.hidden = true;
+      botao.disabled = true;
+      botao.textContent = 'Entrando...';
+
+      try {
+        const resposta = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usuario: campoUsuario.value.trim(),
+            senha: campoSenha.value
+          })
+        });
+
+        const dados = await resposta.json().catch(function () { return {}; });
+
+        if (!resposta.ok) {
+          mostrarErro(dados.erro || 'Não foi possível entrar.');
+          return;
+        }
+
+        window.location.href = '/';
+      } catch (e) {
+        mostrarErro('Falha de conexão com o painel.');
+      } finally {
+        botao.disabled = false;
+        botao.textContent = 'Entrar';
+      }
+    });
+
+    fetch('/auth/me')
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d.logado) window.location.href = '/'; })
+      .catch(function () {});
+  </script>
+</body>
+</html>

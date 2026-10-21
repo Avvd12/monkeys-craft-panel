@@ -34,6 +34,7 @@
       margin: 0;
       padding: 0;
     }
+    [hidden] { display: none !important; }
     body {
       background-color: var(--bg);
       background-image:
@@ -108,6 +109,11 @@
       text-transform: uppercase;
       margin-top: 0.15rem;
     }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
     .connection-badge {
       display: inline-flex;
       align-items: center;
@@ -120,6 +126,43 @@
       font-weight: 500;
       color: var(--text-secondary);
     }
+    .usuario-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+    }
+    .usuario-badge strong { color: var(--text-main); font-weight: 600; }
+    .btn-logout {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.4rem 0.8rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-logout:hover {
+      background: var(--surface);
+      color: var(--text-main);
+      border-color: var(--status-error);
+    }
+    .btn-logout:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+    .btn-logout svg { width: 14px; height: 14px; }
     .status-dot {
       width: 8px;
       height: 8px;
@@ -357,11 +400,30 @@
       margin-top: 0.2rem;
       letter-spacing: 0.02em;
     }
-    .consoles-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
+    .tabs-nav {
+      display: flex;
+      gap: 0.35rem;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 1.5rem;
     }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.7rem 1.1rem;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn.ativo { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .consoles-layout { display: flex; flex-direction: column; gap: 1.25rem; }
     .console-panel {
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
@@ -371,6 +433,9 @@
       flex-direction: column;
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
     }
+    .console-principal .terminal-body { height: 480px; }
+    .consoles-secundarios { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .consoles-secundarios .terminal-body { height: 240px; }
     .console-header {
       padding: 0.85rem 1rem;
       background: #232327;
@@ -605,6 +670,208 @@
       opacity: 0.4;
       cursor: not-allowed;
     }
+    .cartao-arquivos {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.35rem 1.5rem;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+    }
+    .arquivos-topo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: flex-end;
+      margin-bottom: 1rem;
+    }
+    .campo-inline { display: flex; flex-direction: column; gap: 0.3rem; }
+    .campo-inline span {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .campo-inline select {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      padding: 0.5rem 0.7rem;
+      outline: none;
+      min-width: 180px;
+    }
+    .campo-inline select:focus { border-color: var(--accent); }
+    .btn-acao {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-acao:hover:not(:disabled) {
+      background: var(--surface);
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+    .btn-acao:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .btn-acao:disabled { opacity: 0.5; cursor: wait; }
+    .btn-acao-primario {
+      background: linear-gradient(135deg, #ffc629, #ff7a1a);
+      border: none;
+      color: #111113;
+      font-family: var(--font-display);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .btn-acao-primario:hover:not(:disabled) {
+      filter: brightness(1.08);
+      background: linear-gradient(135deg, #ffc629, #ff7a1a);
+      color: #111113;
+    }
+    .btn-acao-perigo { color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); }
+    .btn-acao-perigo:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+    .aviso-arquivos {
+      font-size: 0.82rem;
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      margin-bottom: 1rem;
+    }
+    .aviso-arquivos.ok {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #86efac;
+    }
+    .aviso-arquivos.erro {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.2rem;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    .breadcrumb button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: inherit;
+      font-family: inherit;
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+    }
+    .breadcrumb button:hover { background: var(--surface); }
+    .breadcrumb .sep { color: var(--text-muted); }
+    .tabela-wrap { overflow-x: auto; }
+    .tabela-arquivos { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .tabela-arquivos th {
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 0.6rem 0.7rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .tabela-arquivos td {
+      padding: 0.6rem;
+      border-bottom: 1px solid rgba(51, 51, 56, 0.6);
+      vertical-align: middle;
+    }
+    .tabela-arquivos tr:last-child td { border-bottom: none; }
+    .arquivo-nome {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: inherit;
+      cursor: pointer;
+      padding: 0.15rem 0.3rem;
+      border-radius: 4px;
+      text-align: left;
+    }
+    .arquivo-nome:hover { background: var(--surface); }
+    .arquivo-nome.pasta { color: var(--accent); font-weight: 600; }
+    .arquivo-acoes { display: flex; gap: 0.35rem; justify-content: flex-end; flex-wrap: wrap; }
+    .arquivo-acoes .btn-acao { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
+    .vazio { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1.5rem 0; }
+    .modal-fundo {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      z-index: 200;
+    }
+    .modal-caixa {
+      background: var(--card-bg);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      background: #232327;
+    }
+    .modal-titulo {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .modal-acoes { display: flex; gap: 0.5rem; flex-shrink: 0; }
+    .modal-editor {
+      flex: 1;
+      min-height: 420px;
+      background: #111113;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      border: none;
+      padding: 1rem;
+      resize: none;
+      outline: none;
+      tab-size: 2;
+    }
     .app-footer {
       border-top: 1px solid var(--border-subtle);
       padding: 1.2rem 1.5rem;
@@ -617,12 +884,13 @@
       color: var(--text-secondary);
     }
     @media (max-width: 1024px) {
-      .consoles-grid {
-        grid-template-columns: 1fr;
-      }
       .terminal-body {
         height: 250px;
       }
+    }
+    @media (max-width: 900px) {
+      .consoles-secundarios { grid-template-columns: 1fr; }
+      .console-principal .terminal-body { height: 320px; }
     }
     @media (max-width: 768px) {
       .services-grid {
@@ -655,6 +923,8 @@
         margin-top: 0.25rem;
         flex-wrap: wrap;
       }
+      .btn-logout span { display: none; }
+      .usuario-badge { display: none; }
     }
   </style>
 </head>
@@ -668,9 +938,24 @@
           <span class="brand-subtitle">PAINEL DE CONTROLE</span>
         </div>
       </div>
-      <div class="connection-badge" id="panelConnectionBadge" role="status" aria-live="polite">
-        <span class="status-dot" id="panelConnectionDot"></span>
-        <span id="panelConnectionText">Aguardando conexão...</span>
+      <div class="header-actions">
+        <span class="usuario-badge" id="usuarioBadge" hidden>
+          <strong id="nomeUsuario"></strong>
+          <span id="cargoUsuario"></span>
+        </span>
+        <div class="connection-badge" id="panelConnectionBadge" role="status" aria-live="polite">
+          <span class="status-dot" id="panelConnectionDot"></span>
+          <span id="panelConnectionText">Aguardando conexão...</span>
+        </div>
+        <a class="btn-logout" id="linkAdmin" href="/admin.html" hidden>Usuários</a>
+        <button type="button" class="btn-logout" id="btnLogout" title="Sair do painel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Sair</span>
+        </button>
       </div>
     </div>
   </header>
@@ -707,6 +992,7 @@
                 type="button"
                 class="btn-restart"
                 id="restart-minecraft"
+                data-cargo="admin"
                 title="Reiniciar servidor"
                 aria-label="Reiniciar servidor de Minecraft"
                 disabled
@@ -721,6 +1007,7 @@
                 type="button"
                 class="custom-switch switch-mc"
                 id="toggle-minecraft"
+                data-cargo="admin"
                 role="switch"
                 aria-checked="false"
                 aria-label="Ligar servidor de Minecraft"
@@ -768,6 +1055,7 @@
                 type="button"
                 class="btn-restart"
                 id="restart-discord"
+                data-cargo="admin"
                 title="Reiniciar bot"
                 aria-label="Reiniciar bot do Discord"
                 disabled
@@ -782,6 +1070,7 @@
                 type="button"
                 class="custom-switch switch-dc"
                 id="toggle-discord"
+                data-cargo="admin"
                 role="switch"
                 aria-checked="false"
                 aria-label="Ligar bot do Discord"
@@ -809,108 +1098,138 @@
         </article>
       </div>
     </section>
-    <section aria-labelledby="sec-consoles-title">
+    <section aria-labelledby="sec-area-title">
       <div class="section-header">
-        <h2 id="sec-consoles-title" class="section-title">Consoles</h2>
+        <h2 id="sec-area-title" class="section-title">Área de trabalho</h2>
       </div>
-      <div class="consoles-grid">
-        <div class="console-panel c-discord" id="panel-discord-events">
-          <div class="console-header">
-            <div class="console-title-group">
-              <span class="console-icon-indicator"></span>
-              <span class="console-title">Console do Discord</span>
+
+      <div class="tabs-nav" role="tablist">
+        <button type="button" class="tab-btn ativo" data-aba="consoles" role="tab" aria-selected="true">Consoles</button>
+        <button type="button" class="tab-btn" data-aba="arquivos" role="tab" aria-selected="false" data-cargo="admin">Arquivos</button>
+      </div>
+
+      <div class="tab-painel" id="aba-consoles">
+        <div class="consoles-layout">
+
+          <div class="console-panel c-mc console-principal" id="panel-minecraft">
+            <div class="console-header">
+              <div class="console-title-group">
+                <span class="console-icon-indicator"></span>
+                <span class="console-title">Console do Servidor de Minecraft</span>
+              </div>
+              <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
             </div>
-            <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
+            <div class="console-toolbar">
+              <span>Logs do servidor</span>
+              <div class="console-tools-right">
+                <label class="autoscroll-toggle">
+                  <input type="checkbox" id="autoscroll-minecraft" checked>
+                  <span>Auto-scroll</span>
+                </label>
+                <button type="button" class="btn-clear" onclick="clearConsole('minecraft')" title="Limpar terminal">Limpar</button>
+              </div>
+            </div>
+            <div class="terminal-body" id="console-minecraft" role="log" aria-live="polite">
+              <div class="log-line initial">
+                <span class="log-level system">[SISTEMA]</span>
+                <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
+              </div>
+            </div>
+            <div class="console-command-bar" data-cargo="admin moderador">
+              <input type="text" class="console-command-input" id="mc-command-input" placeholder="Digite um comando (ex: list, say olá)" autocomplete="off" spellcheck="false" disabled>
+              <button type="button" class="btn-send-command" id="mc-command-send" onclick="enviarComandoMinecraft()" disabled>Enviar</button>
+            </div>
           </div>
-          <div class="console-toolbar">
-            <span>Eventos do servidor Discord</span>
-            <div class="console-tools-right">
-              <label class="autoscroll-toggle">
-                <input type="checkbox" id="autoscroll-discord-events" checked>
-                <span>Auto-scroll</span>
-              </label>
-              <button type="button" class="btn-clear" onclick="clearConsole('discord-events')" title="Limpar terminal">
-                Limpar
-              </button>
+
+          <div class="consoles-secundarios">
+
+            <div class="console-panel c-discord" id="panel-discord-events">
+              <div class="console-header">
+                <div class="console-title-group">
+                  <span class="console-icon-indicator"></span>
+                  <span class="console-title">Console do Discord</span>
+                </div>
+                <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
+              </div>
+              <div class="console-toolbar">
+                <span>Eventos do servidor Discord</span>
+                <div class="console-tools-right">
+                  <label class="autoscroll-toggle">
+                    <input type="checkbox" id="autoscroll-discord-events" checked>
+                    <span>Auto-scroll</span>
+                  </label>
+                  <button type="button" class="btn-clear" onclick="clearConsole('discord-events')" title="Limpar terminal">Limpar</button>
+                </div>
+              </div>
+              <div class="terminal-body" id="console-discord-events" role="log" aria-live="polite">
+                <div class="log-line initial">
+                  <span class="log-level system">[SISTEMA]</span>
+                  <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="terminal-body" id="console-discord-events" role="log" aria-live="polite">
-            <div class="log-line initial">
-              <span class="log-level system">[SISTEMA]</span>
-              <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
+
+            <div class="console-panel c-bot" id="panel-discord-bot">
+              <div class="console-header">
+                <div class="console-title-group">
+                  <span class="console-icon-indicator"></span>
+                  <span class="console-title">Console do Bot do Discord</span>
+                </div>
+                <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
+              </div>
+              <div class="console-toolbar">
+                <span>Runtime do bot</span>
+                <div class="console-tools-right">
+                  <label class="autoscroll-toggle">
+                    <input type="checkbox" id="autoscroll-discord-bot" checked>
+                    <span>Auto-scroll</span>
+                  </label>
+                  <button type="button" class="btn-clear" onclick="clearConsole('discord-bot')" title="Limpar terminal">Limpar</button>
+                </div>
+              </div>
+              <div class="terminal-body" id="console-discord-bot" role="log" aria-live="polite">
+                <div class="log-line initial">
+                  <span class="log-level system">[SISTEMA]</span>
+                  <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
-        <div class="console-panel c-bot" id="panel-discord-bot">
-          <div class="console-header">
-            <div class="console-title-group">
-              <span class="console-icon-indicator"></span>
-              <span class="console-title">Console do Bot do Discord</span>
-            </div>
-            <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
+      </div>
+
+      <div class="tab-painel" id="aba-arquivos" hidden>
+        <div class="cartao-arquivos">
+          <div class="arquivos-topo">
+            <label class="campo-inline">
+              <span>Área</span>
+              <select id="arquivosArea"></select>
+            </label>
+            <button type="button" class="btn-acao" id="arquivosAtualizar">Atualizar</button>
+            <button type="button" class="btn-acao" id="arquivosNovaPasta">Nova pasta</button>
+            <button type="button" class="btn-acao btn-acao-primario" id="arquivosEnviar">Enviar arquivos</button>
+            <input type="file" id="arquivosInput" multiple hidden>
           </div>
-          <div class="console-toolbar">
-            <span>Runtime do bot</span>
-            <div class="console-tools-right">
-              <label class="autoscroll-toggle">
-                <input type="checkbox" id="autoscroll-discord-bot" checked>
-                <span>Auto-scroll</span>
-              </label>
-              <button type="button" class="btn-clear" onclick="clearConsole('discord-bot')" title="Limpar terminal">
-                Limpar
-              </button>
-            </div>
-          </div>
-          <div class="terminal-body" id="console-discord-bot" role="log" aria-live="polite">
-            <div class="log-line initial">
-              <span class="log-level system">[SISTEMA]</span>
-              <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
-            </div>
-          </div>
-        </div>
-        <div class="console-panel c-mc" id="panel-minecraft">
-          <div class="console-header">
-            <div class="console-title-group">
-              <span class="console-icon-indicator"></span>
-              <span class="console-title">Console do Servidor de Minecraft</span>
-            </div>
-            <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
-          </div>
-          <div class="console-toolbar">
-            <span>Logs do servidor</span>
-            <div class="console-tools-right">
-              <label class="autoscroll-toggle">
-                <input type="checkbox" id="autoscroll-minecraft" checked>
-                <span>Auto-scroll</span>
-              </label>
-              <button type="button" class="btn-clear" onclick="clearConsole('minecraft')" title="Limpar terminal">
-                Limpar
-              </button>
-            </div>
-          </div>
-          <div class="terminal-body" id="console-minecraft" role="log" aria-live="polite">
-            <div class="log-line initial">
-              <span class="log-level system">[SISTEMA]</span>
-              <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
-            </div>
-          </div>
-          <div class="console-command-bar">
-            <input
-              type="text"
-              class="console-command-input"
-              id="mc-command-input"
-              placeholder="Digite um comando (ex: list, say olá)"
-              autocomplete="off"
-              spellcheck="false"
-              disabled>
-            <button
-              type="button"
-              class="btn-send-command"
-              id="mc-command-send"
-              onclick="enviarComandoMinecraft()"
-              disabled>
-              Enviar
-            </button>
+
+          <p class="aviso-arquivos" id="arquivosAviso" hidden></p>
+
+          <nav class="breadcrumb" id="arquivosBreadcrumb"></nav>
+
+          <div class="tabela-wrap">
+            <table class="tabela-arquivos">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Tamanho</th>
+                  <th>Modificado</th>
+                  <th style="text-align:right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="arquivosLista">
+                <tr><td colspan="4" class="vazio">Selecione uma área.</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -919,6 +1238,20 @@
   <footer class="app-footer">
     <p>Monkey's Craft · Painel conectado ao backend. <span id="footerStatus">Verificando endpoints locais...</span></p>
   </footer>
+
+  <div class="modal-fundo" id="editorFundo" hidden>
+    <div class="modal-caixa">
+      <div class="modal-topo">
+        <span class="modal-titulo" id="editorNome">arquivo</span>
+        <div class="modal-acoes">
+          <button type="button" class="btn-acao" id="editorCancelar">Fechar</button>
+          <button type="button" class="btn-acao btn-acao-primario" id="editorSalvar">Salvar</button>
+        </div>
+      </div>
+      <textarea class="modal-editor" id="editorTexto" spellcheck="false"></textarea>
+    </div>
+  </div>
+
   <script>
     /**
      * MONKEY'S CRAFT · PAINEL DE CONTROLE
@@ -1313,6 +1646,448 @@
       };
     }
     document.addEventListener('DOMContentLoaded', function () {
+      const btnLogout = document.getElementById('btnLogout');
+      if (btnLogout) {
+        btnLogout.addEventListener('click', async function () {
+          btnLogout.disabled = true;
+          try { await fetch('/auth/logout', { method: 'POST' }); } catch (e) {}
+          window.location.href = '/login.html';
+        });
+      }
+
+      (function aplicarCargo() {
+        fetch('/auth/me')
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d.logado) { window.location.href = '/login.html'; return; }
+
+            const cargo = d.cargo || 'visualizador';
+
+            document.querySelectorAll('[data-cargo]').forEach(function (el) {
+              const permitidos = String(el.dataset.cargo).split(/\s+/);
+              if (!permitidos.includes(cargo)) el.hidden = true;
+            });
+
+            const badge = document.getElementById('usuarioBadge');
+            if (badge) {
+              document.getElementById('nomeUsuario').textContent = d.usuario || '';
+              document.getElementById('cargoUsuario').textContent = '· ' + cargo;
+              badge.hidden = false;
+            }
+
+            const linkAdmin = document.getElementById('linkAdmin');
+            if (linkAdmin) linkAdmin.hidden = cargo !== 'admin';
+          })
+          .catch(function () {});
+      })();
+
+      const Arquivos = {
+        areas: [],
+        areaAtual: null,
+        caminhoAtual: '',
+        carregado: false,
+        arquivoAberto: null
+      };
+
+      const elArea = document.getElementById('arquivosArea');
+      const elLista = document.getElementById('arquivosLista');
+      const elBreadcrumb = document.getElementById('arquivosBreadcrumb');
+      const elAviso = document.getElementById('arquivosAviso');
+      const elInput = document.getElementById('arquivosInput');
+      const elEditorFundo = document.getElementById('editorFundo');
+      const elEditorTexto = document.getElementById('editorTexto');
+      const elEditorNome = document.getElementById('editorNome');
+
+      function avisoArquivos(texto, tipo) {
+        elAviso.textContent = texto;
+        elAviso.className = 'aviso-arquivos ' + (tipo === 'ok' ? 'ok' : 'erro');
+        elAviso.hidden = false;
+        clearTimeout(avisoArquivos.timer);
+        avisoArquivos.timer = setTimeout(function () { elAviso.hidden = true; }, 5000);
+      }
+
+      function tamanhoLegivel(bytes) {
+        if (!bytes) return '0 B';
+        const unidades = ['B', 'KB', 'MB', 'GB'];
+        let i = 0;
+        let v = bytes;
+        while (v >= 1024 && i < unidades.length - 1) { v /= 1024; i++; }
+        return v.toFixed(i === 0 ? 0 : 1) + ' ' + unidades[i];
+      }
+
+      function dataLegivel(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '—';
+        return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      }
+
+      async function pedirArquivos(url, opcoes) {
+        const r = await fetch(url, opcoes);
+
+        if (r.status === 401) {
+          window.location.href = '/login.html?expirado=1';
+          throw new Error('Sessão expirada.');
+        }
+
+        const d = await r.json().catch(function () { return {}; });
+        if (!r.ok) throw new Error(d.erro || ('Erro ' + r.status + ' na operação.'));
+        return d;
+      }
+
+      function urlArquivos(rota, params) {
+        const q = new URLSearchParams(params || {});
+        return '/api/files/' + rota + '?' + q.toString();
+      }
+
+      async function carregarAreas() {
+        try {
+          const d = await pedirArquivos('/api/files/areas');
+          Arquivos.areas = d.areas || [];
+
+          elArea.innerHTML = '';
+          Arquivos.areas.forEach(function (a) {
+            const o = document.createElement('option');
+            o.value = a.id;
+            o.textContent = a.rotulo;
+            elArea.appendChild(o);
+          });
+
+          if (!Arquivos.areas.length) {
+            elLista.innerHTML = '<tr><td colspan="4" class="vazio">Nenhuma área configurada.</td></tr>';
+            return;
+          }
+
+          Arquivos.areaAtual = Arquivos.areas[0].id;
+          elArea.value = Arquivos.areaAtual;
+          Arquivos.caminhoAtual = '';
+          await listarArquivos();
+        } catch (e) {
+          avisoArquivos(e.message, 'erro');
+        }
+      }
+
+      async function listarArquivos() {
+        if (!Arquivos.areaAtual) return;
+
+        elLista.innerHTML = '<tr><td colspan="4" class="vazio">Carregando...</td></tr>';
+
+        try {
+          const d = await pedirArquivos(urlArquivos('listar', {
+            area: Arquivos.areaAtual,
+            caminho: Arquivos.caminhoAtual
+          }));
+
+          Arquivos.caminhoAtual = d.caminho || '';
+          montarBreadcrumb(Arquivos.caminhoAtual);
+          montarLista(d.itens || []);
+        } catch (e) {
+          elLista.innerHTML = '<tr><td colspan="4" class="vazio">Não foi possível listar.</td></tr>';
+          avisoArquivos(e.message, 'erro');
+        }
+      }
+
+      function montarBreadcrumb(caminho) {
+        elBreadcrumb.innerHTML = '';
+
+        const raiz = document.createElement('button');
+        raiz.type = 'button';
+        raiz.textContent = 'raiz';
+        raiz.addEventListener('click', function () {
+          Arquivos.caminhoAtual = '';
+          listarArquivos();
+        });
+        elBreadcrumb.appendChild(raiz);
+
+        const partes = String(caminho || '').split('/').filter(Boolean);
+        let acumulado = '';
+
+        partes.forEach(function (parte) {
+          acumulado = acumulado ? acumulado + '/' + parte : parte;
+          const alvo = acumulado;
+
+          const sep = document.createElement('span');
+          sep.className = 'sep';
+          sep.textContent = '/';
+          elBreadcrumb.appendChild(sep);
+
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = parte;
+          b.addEventListener('click', function () {
+            Arquivos.caminhoAtual = alvo;
+            listarArquivos();
+          });
+          elBreadcrumb.appendChild(b);
+        });
+      }
+
+      function montarLista(itens) {
+        elLista.innerHTML = '';
+
+        if (!itens.length) {
+          elLista.innerHTML = '<tr><td colspan="4" class="vazio">Pasta vazia.</td></tr>';
+          return;
+        }
+
+        itens.forEach(function (item) {
+          const tr = document.createElement('tr');
+          const caminhoItem = Arquivos.caminhoAtual
+            ? Arquivos.caminhoAtual + '/' + item.nome
+            : item.nome;
+
+          const tdNome = document.createElement('td');
+          const botaoNome = document.createElement('button');
+          botaoNome.type = 'button';
+          botaoNome.className = 'arquivo-nome' + (item.pasta ? ' pasta' : '');
+          botaoNome.textContent = (item.pasta ? '📁 ' : '📄 ') + item.nome;
+          botaoNome.addEventListener('click', function () {
+            if (item.pasta) {
+              Arquivos.caminhoAtual = caminhoItem;
+              listarArquivos();
+            } else if (item.editavel) {
+              abrirEditor(caminhoItem, item.nome);
+            } else {
+              baixarArquivo(caminhoItem);
+            }
+          });
+          tdNome.appendChild(botaoNome);
+
+          const tdTamanho = document.createElement('td');
+          tdTamanho.textContent = item.pasta ? '—' : tamanhoLegivel(item.tamanho);
+
+          const tdData = document.createElement('td');
+          tdData.textContent = dataLegivel(item.modificado);
+
+          const tdAcoes = document.createElement('td');
+          const divAcoes = document.createElement('div');
+          divAcoes.className = 'arquivo-acoes';
+
+          if (!item.pasta) {
+            if (item.editavel) {
+              const bEditar = document.createElement('button');
+              bEditar.type = 'button';
+              bEditar.className = 'btn-acao';
+              bEditar.textContent = 'Editar';
+              bEditar.addEventListener('click', function () { abrirEditor(caminhoItem, item.nome); });
+              divAcoes.appendChild(bEditar);
+            }
+
+            const bBaixar = document.createElement('button');
+            bBaixar.type = 'button';
+            bBaixar.className = 'btn-acao';
+            bBaixar.textContent = 'Baixar';
+            bBaixar.addEventListener('click', function () { baixarArquivo(caminhoItem); });
+            divAcoes.appendChild(bBaixar);
+          }
+
+          const bRenomear = document.createElement('button');
+          bRenomear.type = 'button';
+          bRenomear.className = 'btn-acao';
+          bRenomear.textContent = 'Renomear';
+          bRenomear.addEventListener('click', function () { renomearItem(caminhoItem, item.nome); });
+          divAcoes.appendChild(bRenomear);
+
+          const bApagar = document.createElement('button');
+          bApagar.type = 'button';
+          bApagar.className = 'btn-acao btn-acao-perigo';
+          bApagar.textContent = 'Apagar';
+          bApagar.addEventListener('click', function () { apagarItem(caminhoItem, item.nome, item.pasta); });
+          divAcoes.appendChild(bApagar);
+
+          tdAcoes.appendChild(divAcoes);
+
+          tr.appendChild(tdNome);
+          tr.appendChild(tdTamanho);
+          tr.appendChild(tdData);
+          tr.appendChild(tdAcoes);
+
+          elLista.appendChild(tr);
+        });
+      }
+
+      async function abrirEditor(caminho, nome) {
+        try {
+          const d = await pedirArquivos(urlArquivos('ler', {
+            area: Arquivos.areaAtual,
+            caminho: caminho
+          }));
+
+          Arquivos.arquivoAberto = caminho;
+          elEditorNome.textContent = nome;
+          elEditorTexto.value = d.conteudo || '';
+          elEditorFundo.hidden = false;
+          elEditorTexto.focus();
+        } catch (e) {
+          avisoArquivos(e.message, 'erro');
+        }
+      }
+
+      async function salvarEditor() {
+        if (!Arquivos.arquivoAberto) return;
+
+        const botao = document.getElementById('editorSalvar');
+        botao.disabled = true;
+
+        try {
+          await pedirArquivos('/api/files/salvar', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              area: Arquivos.areaAtual,
+              caminho: Arquivos.arquivoAberto,
+              conteudo: elEditorTexto.value
+            })
+          });
+
+          elEditorFundo.hidden = true;
+          Arquivos.arquivoAberto = null;
+          avisoArquivos('Arquivo salvo.', 'ok');
+          listarArquivos();
+        } catch (e) {
+          avisoArquivos(e.message, 'erro');
+        } finally {
+          botao.disabled = false;
+        }
+      }
+
+      async function apagarItem(caminho, nome, pasta) {
+        const aviso = pasta
+          ? 'Apagar a pasta "' + nome + '" e TUDO dentro dela? Isso não pode ser desfeito.'
+          : 'Apagar o arquivo "' + nome + '"? Isso não pode ser desfeito.';
+
+        if (!confirm(aviso)) return;
+
+        try {
+          await pedirArquivos('/api/files/apagar', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ area: Arquivos.areaAtual, caminho: caminho })
+          });
+
+          avisoArquivos('"' + nome + '" apagado.', 'ok');
+          listarArquivos();
+        } catch (e) {
+          avisoArquivos(e.message, 'erro');
+        }
+      }
+
+      async function renomearItem(caminho, nome) {
+        const novo = prompt('Novo nome para "' + nome + '":', nome);
+        if (!novo || novo === nome) return;
+
+        try {
+          await pedirArquivos('/api/files/renomear', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ area: Arquivos.areaAtual, caminho: caminho, novo: novo })
+          });
+
+          avisoArquivos('Renomeado para "' + novo + '".', 'ok');
+          listarArquivos();
+        } catch (e) {
+          avisoArquivos(e.message, 'erro');
+        }
+      }
+
+      async function criarPasta() {
+        const nome = prompt('Nome da nova pasta:');
+        if (!nome) return;
+
+        try {
+          await pedirArquivos('/api/files/pasta', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ area: Arquivos.areaAtual, caminho: Arquivos.caminhoAtual, nome: nome })
+          });
+
+          avisoArquivos('Pasta "' + nome + '" criada.', 'ok');
+          listarArquivos();
+        } catch (e) {
+          avisoArquivos(e.message, 'erro');
+        }
+      }
+
+      async function enviarArquivos(lista) {
+        if (!lista || !lista.length) return;
+
+        const dados = new FormData();
+        Array.from(lista).forEach(function (f) { dados.append('arquivos', f); });
+
+        try {
+          await pedirArquivos(urlArquivos('upload', {
+            area: Arquivos.areaAtual,
+            caminho: Arquivos.caminhoAtual
+          }), { method: 'POST', body: dados });
+
+          avisoArquivos(lista.length + (lista.length === 1 ? ' arquivo enviado.' : ' arquivos enviados.'), 'ok');
+          listarArquivos();
+        } catch (e) {
+          avisoArquivos(e.message, 'erro');
+        }
+      }
+
+      function baixarArquivo(caminho) {
+        window.location.href = urlArquivos('baixar', {
+          area: Arquivos.areaAtual,
+          caminho: caminho
+        });
+      }
+
+      elArea.addEventListener('change', function () {
+        Arquivos.areaAtual = elArea.value;
+        Arquivos.caminhoAtual = '';
+        listarArquivos();
+      });
+
+      document.getElementById('arquivosAtualizar').addEventListener('click', listarArquivos);
+      document.getElementById('arquivosNovaPasta').addEventListener('click', criarPasta);
+      document.getElementById('arquivosEnviar').addEventListener('click', function () { elInput.click(); });
+      elInput.addEventListener('change', function () {
+        enviarArquivos(elInput.files);
+        elInput.value = '';
+      });
+
+      document.getElementById('editorSalvar').addEventListener('click', salvarEditor);
+      document.getElementById('editorCancelar').addEventListener('click', function () {
+        elEditorFundo.hidden = true;
+        Arquivos.arquivoAberto = null;
+      });
+      elEditorFundo.addEventListener('click', function (evento) {
+        if (evento.target === elEditorFundo) {
+          elEditorFundo.hidden = true;
+          Arquivos.arquivoAberto = null;
+        }
+      });
+      elEditorTexto.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Tab') {
+          evento.preventDefault();
+          const inicio = this.selectionStart;
+          const fim = this.selectionEnd;
+          this.value = this.value.slice(0, inicio) + '  ' + this.value.slice(fim);
+          this.selectionStart = this.selectionEnd = inicio + 2;
+        }
+      });
+
+      document.querySelectorAll('.tab-btn').forEach(function (botao) {
+        botao.addEventListener('click', function () {
+          document.querySelectorAll('.tab-btn').forEach(function (b) {
+            const ativo = b === botao;
+            b.classList.toggle('ativo', ativo);
+            b.setAttribute('aria-selected', ativo ? 'true' : 'false');
+          });
+
+          document.querySelectorAll('.tab-painel').forEach(function (p) {
+            p.hidden = p.id !== 'aba-' + botao.dataset.aba;
+          });
+
+          if (botao.dataset.aba === 'arquivos' && !Arquivos.carregado) {
+            Arquivos.carregado = true;
+            carregarAreas();
+          }
+        });
+      });
+
       setConnectionState('initial');
       atualizaAriaLabel('minecraft', false);
       atualizaAriaLabel('discord', false);

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuários · Monkey's Craft</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+  <style>
+    :root {
+      --accent: #ffc629;
+      --accent-orange: #ff7a1a;
+      --bg: #1a1a1c;
+      --surface: #222225;
+      --card-bg: #28282c;
+      --border-subtle: #333338;
+      --border-strong: #3d3d44;
+      --text-main: #ffffff;
+      --text-secondary: #9a9aa2;
+      --text-muted: #6a6a72;
+      --ok: #22c55e;
+      --erro: #ef4444;
+      --aviso: #fbbf24;
+      --font-display: 'Chakra Petch', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+    body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(255, 198, 41, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(255, 122, 26, 0.05) 0%, transparent 45%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 2rem 1.25rem 3rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .topo {
+      max-width: 980px;
+      margin: 0 auto 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .topo-titulo {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffc629 20%, #ff7a1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .topo-sub {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-top: 0.15rem;
+    }
+    .topo-acoes { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: var(--surface); color: var(--text-main); border-color: var(--border-strong); }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn-primario {
+      background: linear-gradient(135deg, #ffc629, #ff7a1a);
+      border: none;
+      color: #111113;
+      font-family: var(--font-display);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .btn-primario:hover { filter: brightness(1.08); background: linear-gradient(135deg, #ffc629, #ff7a1a); color: #111113; }
+    .btn-perigo { color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); }
+    .btn-perigo:hover { background: rgba(239, 68, 68, 0.12); color: #fca5a5; border-color: rgba(239, 68, 68, 0.6); }
+    .btn:disabled { opacity: 0.55; cursor: wait; }
+    .cartao {
+      max-width: 980px;
+      margin: 0 auto 1.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    .cartao-titulo {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 1.1rem;
+    }
+    .grade {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 0.9rem;
+      align-items: end;
+    }
+    @media (max-width: 780px) { .grade { grid-template-columns: 1fr; } }
+    .campo { display: flex; flex-direction: column; gap: 0.35rem; }
+    .campo span {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .campo input, .campo select {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 0.6rem 0.75rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .campo input:focus, .campo select:focus { border-color: var(--accent); }
+    .aviso {
+      max-width: 980px;
+      margin: 0 auto 1.25rem;
+      font-size: 0.84rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+    .aviso-ok { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.4); color: #86efac; }
+    .aviso-erro { background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+    .tabela { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    .tabela th {
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 0.6rem 0.7rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .tabela td {
+      padding: 0.75rem 0.6rem;
+      border-bottom: 1px solid rgba(51, 51, 56, 0.6);
+      vertical-align: middle;
+    }
+    .tabela tr:last-child td { border-bottom: none; }
+    .tabela .nome { font-weight: 600; }
+    .tabela .login { color: var(--text-muted); font-size: 0.78rem; }
+    .etiqueta {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.55rem;
+      border-radius: 9999px;
+      border: 1px solid;
+    }
+    .etiqueta-admin { color: #fcd34d; border-color: rgba(252, 211, 77, 0.45); background: rgba(252, 211, 77, 0.1); }
+    .etiqueta-moderador { color: #7dd3fc; border-color: rgba(125, 211, 252, 0.45); background: rgba(125, 211, 252, 0.1); }
+    .etiqueta-visualizador { color: var(--text-secondary); border-color: var(--border-strong); background: rgba(154, 154, 162, 0.08); }
+    .linha-acoes { display: flex; gap: 0.4rem; justify-content: flex-end; }
+    .vazio { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1.5rem 0; }
+    .rodape { max-width: 980px; margin: 0 auto; font-size: 0.72rem; color: var(--text-muted); text-align: center; }
+  </style>
+</head>
+<body>
+  <header class="topo">
+    <div>
+      <h1 class="topo-titulo">Usuários do painel</h1>
+      <p class="topo-sub" id="topoSub">Carregando...</p>
+    </div>
+    <div class="topo-acoes">
+      <a class="btn" href="/">Voltar ao painel</a>
+      <button type="button" class="btn btn-perigo" id="btnSair">Sair</button>
+    </div>
+  </header>
+
+  <p class="aviso" id="aviso" hidden></p>
+
+  <section class="cartao">
+    <h2 class="cartao-titulo" id="tituloForm">Novo usuário</h2>
+    <form class="grade" id="formUsuario">
+      <label class="campo">
+        <span>Usuário</span>
+        <input type="text" id="campoUsuario" autocomplete="off" placeholder="ex: arthur" required>
+      </label>
+      <label class="campo">
+        <span>Senha</span>
+        <input type="password" id="campoSenha" autocomplete="new-password" placeholder="mínimo 8 caracteres" required>
+      </label>
+      <label class="campo">
+        <span>Cargo</span>
+        <select id="campoCargo">
+          <option value="admin">Admin</option>
+          <option value="moderador">Moderador</option>
+          <option value="visualizador">Visualizador</option>
+        </select>
+      </label>
+      <div class="campo">
+        <span>&nbsp;</span>
+        <div style="display:flex; gap:0.5rem;">
+          <button type="submit" class="btn btn-primario" id="btnSalvar">Salvar</button>
+          <button type="button" class="btn" id="btnCancelar" hidden>Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section class="cartao">
+    <h2 class="cartao-titulo">Cadastrados</h2>
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>Usuário</th>
+          <th>Cargo</th>
+          <th>Criado em</th>
+          <th style="text-align:right;">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="corpoTabela">
+        <tr><td colspan="4" class="vazio">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class="rodape">Monkey's Craft · Painel</p>
+
+  <script>
+    const aviso = document.getElementById('aviso');
+    const corpoTabela = document.getElementById('corpoTabela');
+    const topoSub = document.getElementById('topoSub');
+    const form = document.getElementById('formUsuario');
+    const campoUsuario = document.getElementById('campoUsuario');
+    const campoSenha = document.getElementById('campoSenha');
+    const campoCargo = document.getElementById('campoCargo');
+    const btnSalvar = document.getElementById('btnSalvar');
+    const btnCancelar = document.getElementById('btnCancelar');
+    const tituloForm = document.getElementById('tituloForm');
+
+    let editando = null;
+    let meuLogin = null;
+
+    function mostrarAviso(texto, tipo) {
+      aviso.textContent = texto;
+      aviso.className = 'aviso ' + (tipo === 'ok' ? 'aviso-ok' : 'aviso-erro');
+      aviso.hidden = false;
+      clearTimeout(mostrarAviso.timer);
+      mostrarAviso.timer = setTimeout(function () { aviso.hidden = true; }, 5000);
+    }
+
+    function dataCurta(iso) {
+      if (!iso) return '—';
+      try {
+        return new Date(iso).toLocaleDateString('pt-BR');
+      } catch (e) {
+        return '—';
+      }
+    }
+
+    function limparForm() {
+      editando = null;
+      form.reset();
+      campoUsuario.disabled = false;
+      tituloForm.textContent = 'Novo usuário';
+      btnCancelar.hidden = true;
+    }
+
+    function preencherForm(u) {
+      editando = u.usuario;
+      campoUsuario.value = u.usuario;
+      campoUsuario.disabled = true;
+      campoSenha.value = '';
+      campoCargo.value = u.cargo;
+      tituloForm.textContent = 'Editar ' + u.usuario;
+      btnCancelar.hidden = false;
+      campoSenha.focus();
+    }
+
+    async function carregar() {
+      try {
+        const r = await fetch('/api/usuarios');
+        const d = await r.json();
+
+        if (!r.ok) {
+          mostrarAviso(d.erro || 'Não foi possível carregar.', 'erro');
+          return;
+        }
+
+        const lista = d.usuarios || [];
+        topoSub.textContent = lista.length + (lista.length === 1 ? ' usuário cadastrado' : ' usuários cadastrados');
+
+        if (!lista.length) {
+          corpoTabela.innerHTML = '<tr><td colspan="4" class="vazio">Nenhum usuário cadastrado.</td></tr>';
+          return;
+        }
+
+        corpoTabela.innerHTML = '';
+
+        lista.forEach(function (u) {
+          const tr = document.createElement('tr');
+
+          const tdNome = document.createElement('td');
+          const divNome = document.createElement('div');
+          divNome.className = 'nome';
+          divNome.textContent = u.nome;
+          const divLogin = document.createElement('div');
+          divLogin.className = 'login';
+          divLogin.textContent = u.usuario + (u.usuario === meuLogin ? ' (você)' : '');
+          tdNome.appendChild(divNome);
+          tdNome.appendChild(divLogin);
+
+          const tdCargo = document.createElement('td');
+          const et = document.createElement('span');
+          et.className = 'etiqueta etiqueta-' + u.cargo;
+          et.textContent = u.cargo;
+          tdCargo.appendChild(et);
+
+          const tdData = document.createElement('td');
+          tdData.textContent = dataCurta(u.criadoEm);
+
+          const tdAcoes = document.createElement('td');
+          const div = document.createElement('div');
+          div.className = 'linha-acoes';
+
+          const btnEditar = document.createElement('button');
+          btnEditar.type = 'button';
+          btnEditar.className = 'btn';
+          btnEditar.textContent = 'Editar';
+          btnEditar.addEventListener('click', function () { preencherForm(u); });
+
+          const btnRemover = document.createElement('button');
+          btnRemover.type = 'button';
+          btnRemover.className = 'btn btn-perigo';
+          btnRemover.textContent = 'Remover';
+          btnRemover.disabled = u.usuario === meuLogin;
+          btnRemover.title = u.usuario === meuLogin ? 'Você não pode remover a própria conta' : 'Remover usuário';
+          btnRemover.addEventListener('click', function () { remover(u.usuario); });
+
+          div.appendChild(btnEditar);
+          div.appendChild(btnRemover);
+          tdAcoes.appendChild(div);
+
+          tr.appendChild(tdNome);
+          tr.appendChild(tdCargo);
+          tr.appendChild(tdData);
+          tr.appendChild(tdAcoes);
+
+          corpoTabela.appendChild(tr);
+        });
+      } catch (e) {
+        mostrarAviso('Falha de conexão com o painel.', 'erro');
+      }
+    }
+
+    async function remover(usuario) {
+      if (!confirm('Remover o usuário "' + usuario + '"? Ele perde o acesso imediatamente.')) return;
+
+      try {
+        const r = await fetch('/api/usuarios/' + encodeURIComponent(usuario), { method: 'DELETE' });
+        const d = await r.json().catch(function () { return {}; });
+
+        if (!r.ok) {
+          mostrarAviso(d.erro || 'Não foi possível remover.', 'erro');
+          return;
+        }
+
+        mostrarAviso('Usuário "' + usuario + '" removido.', 'ok');
+        if (editando === usuario) limparForm();
+        carregar();
+      } catch (e) {
+        mostrarAviso('Falha de conexão com o painel.', 'erro');
+      }
+    }
+
+    form.addEventListener('submit', async function (evento) {
+      evento.preventDefault();
+      btnSalvar.disabled = true;
+
+      try {
+        const r = await fetch('/api/usuarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usuario: campoUsuario.value.trim().toLowerCase(),
+            senha: campoSenha.value,
+            cargo: campoCargo.value
+          })
+        });
+
+        const d = await r.json().catch(function () { return {}; });
+
+        if (!r.ok) {
+          mostrarAviso(d.erro || 'Não foi possível salvar.', 'erro');
+          return;
+        }
+
+        mostrarAviso(d.atualizado ? 'Usuário atualizado.' : 'Usuário criado.', 'ok');
+        limparForm();
+        carregar();
+      } catch (e) {
+        mostrarAviso('Falha de conexão com o painel.', 'erro');
+      } finally {
+        btnSalvar.disabled = false;
+      }
+    });
+
+    btnCancelar.addEventListener('click', limparForm);
+
+    document.getElementById('btnSair').addEventListener('click', async function () {
+      try { await fetch('/auth/logout', { method: 'POST' }); } catch (e) {}
+      window.location.href = '/login.html';
+    });
+
+    (async function iniciar() {
+      try {
+        const r = await fetch('/auth/me');
+        const d = await r.json();
+
+        if (!d.logado) { window.location.href = '/login.html'; return; }
+        if (d.cargo !== 'admin') { window.location.href = '/'; return; }
+
+        meuLogin = d.login;
+        carregar();
+      } catch (e) {
+        window.location.href = '/login.html';
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -24,3 +24,6 @@ desktop.ini
 *.swp
 # Backups locais
 *.old.js
+# Login
+usuarios.json
+acessos.log
