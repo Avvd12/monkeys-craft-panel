@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monkey's Craft · Painel de Controle</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <style>
+    :root {
+      --accent: #ffc629;
+      --accent-orange: #ff7a1a;
+      --accent-brown: #6b4226;
+      --accent-discord: #c2185b;
+      --accent-contrast: #111113;
+      --bg: #1a1a1c;
+      --surface: #222225;
+      --card-bg: #28282c;
+      --card-hover: #2e2e33;
+      --border-subtle: #333338;
+      --border-strong: #3d3d44;
+      --text-main: #ffffff;
+      --text-secondary: #9a9aa2;
+      --text-muted: #6a6a72;
+      --font-display: 'Chakra Petch', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+      --status-disconnected: #6a6a72;
+      --status-connecting: #ffc629;
+      --status-online: #22c55e;
+      --status-error: #ef4444;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 10% 10%, rgba(255, 198, 41, 0.045) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(255, 122, 26, 0.045) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(26, 26, 28, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.5rem;
+    }
+    .header-content {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand__logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #2b2b30, #1f1f23);
+      border: 1px solid var(--border-strong);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+    }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+      color: #ffc629;
+      background: linear-gradient(135deg, #ffc629 20%, #ff7a1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+    .brand-subtitle {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-top: 0.15rem;
+    }
+    .connection-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--status-disconnected);
+      flex-shrink: 0;
+      transition: background-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .status-dot.connecting {
+      background-color: var(--status-connecting);
+      box-shadow: 0 0 8px rgba(255, 198, 41, 0.65);
+      animation: pulse-dot 1.2s infinite ease-in-out;
+    }
+    .status-dot.online {
+      background-color: var(--status-online);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.65);
+    }
+    .status-dot.error {
+      background-color: var(--status-error);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.65);
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.15); }
+    }
+    .main-wrap {
+      flex: 1;
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.25rem;
+    }
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+      margin-bottom: 1.15rem;
+    }
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-title::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--accent), var(--accent-orange));
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+    .service-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.35rem 1.5rem;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+      transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      position: relative;
+    }
+    .service-card:hover {
+      background: var(--card-hover);
+      border-color: var(--border-strong);
+    }
+    .service-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .service-identity {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .service-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .service-card.minecraft .service-icon-box {
+      border-color: rgba(255, 198, 41, 0.35);
+    }
+    .service-card.discord .service-icon-box {
+      border-color: rgba(194, 24, 91, 0.35);
+    }
+    .service-names h2 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+    .service-names p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+    .service-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .service-state-tag {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .custom-switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      background-color: #333338;
+      border-radius: 9999px;
+      border: 1px solid var(--border-strong);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px;
+      transition: background-color 0.25s ease, border-color 0.25s ease, opacity 0.2s ease;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .custom-switch:focus-visible {
+      box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+    }
+    .custom-switch .switch-handle {
+      width: 22px;
+      height: 22px;
+      background: #e2e2e7;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .custom-switch[aria-checked="true"].switch-mc {
+      background: linear-gradient(135deg, #ffc629, #ff7a1a);
+      border-color: #ffc629;
+    }
+    .custom-switch[aria-checked="true"].switch-mc .switch-handle {
+      transform: translateX(24px);
+      background: #1a1a1c;
+    }
+    .custom-switch[aria-checked="true"].switch-dc {
+      background: #c2185b;
+      border-color: #e91e63;
+    }
+    .custom-switch[aria-checked="true"].switch-dc .switch-handle {
+      transform: translateX(24px);
+      background: #ffffff;
+    }
+    .custom-switch.is-loading {
+      cursor: wait;
+      opacity: 0.85;
+    }
+    .switch-spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(0, 0, 0, 0.35);
+      border-top-color: #111113;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    .custom-switch.is-loading .switch-spinner {
+      display: block;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .service-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      padding-top: 0.95rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .stat-item {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+      letter-spacing: 0.02em;
+    }
+    .consoles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .console-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+    }
+    .console-header {
+      padding: 0.85rem 1rem;
+      background: #232327;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .console-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .console-icon-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .c-discord .console-icon-indicator { background: var(--accent-discord); }
+    .c-bot .console-icon-indicator { background: #9d4edd; }
+    .c-mc .console-icon-indicator { background: var(--accent); }
+    .console-title {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .console-toolbar {
+      padding: 0.45rem 1rem;
+      background: #1b1b1e;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.73rem;
+      color: var(--text-secondary);
+    }
+    .console-tools-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .btn-clear {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      font-family: var(--font-body);
+      font-weight: 500;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn-clear:hover {
+      background: var(--surface);
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+    .btn-clear:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+    .btn-restart {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-restart:hover:not(:disabled) {
+      background: var(--surface);
+      color: var(--text-main);
+      border-color: var(--accent);
+    }
+    .btn-restart:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+    .btn-restart:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .btn-restart.girando:disabled {
+      cursor: wait;
+    }
+    .btn-restart svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+    }
+    .btn-restart.girando svg {
+      animation: spin 0.9s linear infinite;
+    }
+    .autoscroll-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .autoscroll-toggle input[type="checkbox"] {
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .terminal-body {
+      background: #111113;
+      padding: 0.85rem 1rem;
+      height: 330px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      scroll-behavior: smooth;
+    }
+    .terminal-body::-webkit-scrollbar {
+      width: 7px;
+    }
+    .terminal-body::-webkit-scrollbar-track {
+      background: #111113;
+    }
+    .terminal-body::-webkit-scrollbar-thumb {
+      background: #2b2b30;
+      border-radius: 4px;
+    }
+    .terminal-body::-webkit-scrollbar-thumb:hover {
+      background: #3d3d44;
+    }
+    .log-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      word-break: break-word;
+      padding: 0.08rem 0;
+    }
+    .log-time {
+      color: var(--text-muted);
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .log-level {
+      font-weight: 600;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .log-level.system { color: #8e8e96; }
+    .log-level.info { color: #38bdf8; }
+    .log-level.success { color: #4ade80; }
+    .log-level.error { color: #f87171; }
+    .log-level.warn { color: #fbbf24; }
+    .log-msg {
+      color: var(--text-secondary);
+      flex: 1;
+    }
+    .log-line.initial .log-msg {
+      color: #6a6a72;
+      font-style: italic;
+    }
+    .console-command-bar {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.55rem 1rem;
+      background: #1b1b1e;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .console-command-input {
+      flex: 1;
+      min-width: 0;
+      background: #111113;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 0.38rem 0.6rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .console-command-input:focus {
+      border-color: var(--accent);
+    }
+    .console-command-input::placeholder {
+      color: var(--text-muted);
+    }
+    .console-command-input:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-send-command {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 0.38rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-send-command:hover:not(:disabled) {
+      background: var(--surface);
+      color: var(--text-main);
+      border-color: var(--accent);
+    }
+    .btn-send-command:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+    .btn-send-command:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .app-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: rgba(26, 26, 28, 0.6);
+    }
+    .app-footer span {
+      color: var(--text-secondary);
+    }
+    @media (max-width: 1024px) {
+      .consoles-grid {
+        grid-template-columns: 1fr;
+      }
+      .terminal-body {
+        height: 250px;
+      }
+    }
+    @media (max-width: 768px) {
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+      .app-header {
+        padding: 0.75rem 1rem;
+      }
+      .brand-subtitle {
+        display: none;
+      }
+      .brand-title {
+        font-size: 1.15rem;
+      }
+      .brand__logo {
+        width: 44px;
+        height: 44px;
+      }
+      .main-wrap {
+        padding: 1.25rem 1rem 2rem 1rem;
+        gap: 1.5rem;
+      }
+      .service-card-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .service-controls {
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 0.25rem;
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-content">
+      <div class="brand-group">
+        <img class="brand__logo" src="assets/logo.png" alt="Logo Monkey's Craft" />
+        <div class="brand-text">
+          <h1 class="brand-title">MONKEY'S CRAFT</h1>
+          <span class="brand-subtitle">PAINEL DE CONTROLE</span>
+        </div>
+      </div>
+      <div class="connection-badge" id="panelConnectionBadge" role="status" aria-live="polite">
+        <span class="status-dot" id="panelConnectionDot"></span>
+        <span id="panelConnectionText">Aguardando conexão...</span>
+      </div>
+    </div>
+  </header>
+  <main class="main-wrap">
+    <section aria-labelledby="sec-servicos-title">
+      <div class="section-header">
+        <h2 id="sec-servicos-title" class="section-title">Serviços</h2>
+        <p class="section-subtitle">Gerencie e monitore seus serviços em tempo real.</p>
+      </div>
+      <div class="services-grid">
+        <article class="service-card minecraft" id="service-card-minecraft">
+          <div class="service-card-top">
+            <div class="service-identity">
+              <div class="service-icon-box" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <polygon points="12,2 22,7.5 12,13 2,7.5" fill="#ffc629"/>
+                  <polygon points="2,7.5 12,13 12,22 2,16.5" fill="#6b4226"/>
+                  <polygon points="2,7.5 12,13 12,15 2,9.5" fill="#ff7a1a"/>
+                  <polygon points="12,13 22,7.5 22,16.5 12,22" fill="#52321c"/>
+                  <polygon points="12,13 22,7.5 22,9.5 12,15" fill="#e06914"/>
+                </svg>
+              </div>
+              <div class="service-names">
+                <h2>Monkey's Craft</h2>
+                <p>Servidor de Minecraft</p>
+              </div>
+            </div>
+            <div class="service-controls">
+              <div class="service-state-tag" id="status-tag-minecraft">
+                <span class="status-dot" id="dot-minecraft"></span>
+                <span id="label-minecraft">Desconectado</span>
+              </div>
+              <button
+                type="button"
+                class="btn-restart"
+                id="restart-minecraft"
+                title="Reiniciar servidor"
+                aria-label="Reiniciar servidor de Minecraft"
+                disabled
+                onclick="reiniciarServico('minecraft')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+                  <polyline points="21 3 21 9 15 9"></polyline>
+                </svg>
+                <span>Reiniciar</span>
+              </button>
+              <button
+                type="button"
+                class="custom-switch switch-mc"
+                id="toggle-minecraft"
+                role="switch"
+                aria-checked="false"
+                aria-label="Ligar servidor de Minecraft"
+                onclick="toggleServerStatus('minecraft')">
+                <span class="switch-handle">
+                  <span class="switch-spinner"></span>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="service-stats">
+            <div class="stat-item">
+              <div class="stat-label">Jogadores</div>
+              <div class="stat-val" id="mc-stat-players">--/--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Versão</div>
+              <div class="stat-val" id="mc-stat-version">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Latência</div>
+              <div class="stat-val" id="mc-stat-ping">-- ms</div>
+            </div>
+          </div>
+        </article>
+        <article class="service-card discord" id="service-card-discord">
+          <div class="service-card-top">
+            <div class="service-identity">
+              <div class="service-icon-box" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="#c2185b" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                </svg>
+              </div>
+              <div class="service-names">
+                <h2>Bot do Discord</h2>
+                <p>Automação e moderação</p>
+              </div>
+            </div>
+            <div class="service-controls">
+              <div class="service-state-tag" id="status-tag-discord">
+                <span class="status-dot" id="dot-discord"></span>
+                <span id="label-discord">Desconectado</span>
+              </div>
+              <button
+                type="button"
+                class="btn-restart"
+                id="restart-discord"
+                title="Reiniciar bot"
+                aria-label="Reiniciar bot do Discord"
+                disabled
+                onclick="reiniciarServico('discord')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+                  <polyline points="21 3 21 9 15 9"></polyline>
+                </svg>
+                <span>Reiniciar</span>
+              </button>
+              <button
+                type="button"
+                class="custom-switch switch-dc"
+                id="toggle-discord"
+                role="switch"
+                aria-checked="false"
+                aria-label="Ligar bot do Discord"
+                onclick="toggleServerStatus('discord')">
+                <span class="switch-handle">
+                  <span class="switch-spinner"></span>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="service-stats">
+            <div class="stat-item">
+              <div class="stat-label">Servidores</div>
+              <div class="stat-val" id="dc-stat-guilds">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Comandos</div>
+              <div class="stat-val" id="dc-stat-commands">--</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Latência</div>
+              <div class="stat-val" id="dc-stat-ping">-- ms</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+    <section aria-labelledby="sec-consoles-title">
+      <div class="section-header">
+        <h2 id="sec-consoles-title" class="section-title">Consoles</h2>
+      </div>
+      <div class="consoles-grid">
+        <div class="console-panel c-discord" id="panel-discord-events">
+          <div class="console-header">
+            <div class="console-title-group">
+              <span class="console-icon-indicator"></span>
+              <span class="console-title">Console do Discord</span>
+            </div>
+            <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
+          </div>
+          <div class="console-toolbar">
+            <span>Eventos do servidor Discord</span>
+            <div class="console-tools-right">
+              <label class="autoscroll-toggle">
+                <input type="checkbox" id="autoscroll-discord-events" checked>
+                <span>Auto-scroll</span>
+              </label>
+              <button type="button" class="btn-clear" onclick="clearConsole('discord-events')" title="Limpar terminal">
+                Limpar
+              </button>
+            </div>
+          </div>
+          <div class="terminal-body" id="console-discord-events" role="log" aria-live="polite">
+            <div class="log-line initial">
+              <span class="log-level system">[SISTEMA]</span>
+              <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
+            </div>
+          </div>
+        </div>
+        <div class="console-panel c-bot" id="panel-discord-bot">
+          <div class="console-header">
+            <div class="console-title-group">
+              <span class="console-icon-indicator"></span>
+              <span class="console-title">Console do Bot do Discord</span>
+            </div>
+            <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
+          </div>
+          <div class="console-toolbar">
+            <span>Runtime do bot</span>
+            <div class="console-tools-right">
+              <label class="autoscroll-toggle">
+                <input type="checkbox" id="autoscroll-discord-bot" checked>
+                <span>Auto-scroll</span>
+              </label>
+              <button type="button" class="btn-clear" onclick="clearConsole('discord-bot')" title="Limpar terminal">
+                Limpar
+              </button>
+            </div>
+          </div>
+          <div class="terminal-body" id="console-discord-bot" role="log" aria-live="polite">
+            <div class="log-line initial">
+              <span class="log-level system">[SISTEMA]</span>
+              <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
+            </div>
+          </div>
+        </div>
+        <div class="console-panel c-mc" id="panel-minecraft">
+          <div class="console-header">
+            <div class="console-title-group">
+              <span class="console-icon-indicator"></span>
+              <span class="console-title">Console do Servidor de Minecraft</span>
+            </div>
+            <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
+          </div>
+          <div class="console-toolbar">
+            <span>Logs do servidor</span>
+            <div class="console-tools-right">
+              <label class="autoscroll-toggle">
+                <input type="checkbox" id="autoscroll-minecraft" checked>
+                <span>Auto-scroll</span>
+              </label>
+              <button type="button" class="btn-clear" onclick="clearConsole('minecraft')" title="Limpar terminal">
+                Limpar
+              </button>
+            </div>
+          </div>
+          <div class="terminal-body" id="console-minecraft" role="log" aria-live="polite">
+            <div class="log-line initial">
+              <span class="log-level system">[SISTEMA]</span>
+              <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
+            </div>
+          </div>
+          <div class="console-command-bar">
+            <input
+              type="text"
+              class="console-command-input"
+              id="mc-command-input"
+              placeholder="Digite um comando (ex: list, say olá)"
+              autocomplete="off"
+              spellcheck="false"
+              disabled>
+            <button
+              type="button"
+              class="btn-send-command"
+              id="mc-command-send"
+              onclick="enviarComandoMinecraft()"
+              disabled>
+              Enviar
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="app-footer">
+    <p>Monkey's Craft · Painel conectado ao backend. <span id="footerStatus">Verificando endpoints locais...</span></p>
+  </footer>
+  <script>
+    /**
+     * MONKEY'S CRAFT · PAINEL DE CONTROLE
+     * Integração com a API REST e o WebSocket de logs do backend.
+     */
+    const API_BASE = (location.protocol === 'file:') ? 'http://localhost:3000' : location.origin;
+    const WS_URL = API_BASE.replace(/^http/, 'ws') + '/ws/logs';
+    const MAX_LINHAS = 400;
+    const STATUS_ROTULOS = {
+      connecting: 'Conectando...',
+      starting: 'Iniciando...',
+      stopping: 'Encerrando...',
+      online: 'Online',
+      offline: 'Offline',
+      disconnected: 'Desconectado',
+      error: 'Erro'
+    };
+    const ARIA_LABELS = {
+      minecraft: { ligar: 'Ligar servidor de Minecraft', desligar: 'Desligar servidor de Minecraft' },
+      discord: { ligar: 'Ligar bot do Discord', desligar: 'Desligar bot do Discord' }
+    };
+    const SERVICES = {
+      minecraft: { id: 'minecraft', name: "Monkey's Craft", status: 'disconnected', consoleId: 'minecraft' },
+      discord: { id: 'discord', name: 'Bot do Discord', status: 'disconnected', consoleId: 'discord-bot' }
+    };
+    // Controla reinícios em andamento para o polling não reativar o botão no meio do processo
+    const REINICIANDO = { minecraft: false, discord: false };
+    // Mapeia o nome da fonte de log do backend para o console da interface
+    const FONTE_PARA_CONSOLE = {
+      minecraft: 'minecraft',
+      bot: 'discord-bot',
+      discord: 'discord-events',
+      sistema: 'todos'
+    };
+    // Mapeia o nível do backend para as classes de cor do CSS original
+    const NIVEL_PARA_CLASSE = {
+      info: 'info',
+      erro: 'error',
+      error: 'error',
+      aviso: 'warn',
+      warn: 'warn',
+      sucesso: 'success',
+      success: 'success',
+      sistema: 'system',
+      system: 'system'
+    };
+    function setConnectionState(state) {
+      const dot = document.getElementById('panelConnectionDot');
+      const text = document.getElementById('panelConnectionText');
+      if (!dot || !text) return;
+      dot.className = 'status-dot';
+      if (state === 'online') {
+        dot.classList.add('online');
+        text.textContent = 'Conectado';
+      } else if (state === 'connecting' || state === 'reconnecting') {
+        dot.classList.add('connecting');
+        text.textContent = 'Reconectando...';
+      } else if (state === 'error') {
+        dot.classList.add('error');
+        text.textContent = 'Sem conexão';
+      } else if (state === 'disconnected') {
+        text.textContent = 'Desconectado';
+      } else {
+        text.textContent = 'Aguardando conexão...';
+      }
+    }
+    function atualizaAriaLabel(serviceId, estaAtivo) {
+      const toggleBtn = document.getElementById('toggle-' + serviceId);
+      if (!toggleBtn || !ARIA_LABELS[serviceId]) return;
+      toggleBtn.setAttribute('aria-label', estaAtivo ? ARIA_LABELS[serviceId].desligar : ARIA_LABELS[serviceId].ligar);
+    }
+    function normalizarStatus(status) {
+      const s = String(status || 'offline').toLowerCase();
+      if (s === 'iniciando' || s === 'starting') return 'starting';
+      if (s === 'parando' || s === 'stopping') return 'stopping';
+      if (s === 'online') return 'online';
+      if (s === 'erro' || s === 'error') return 'error';
+      if (s === 'offline') return 'offline';
+      return 'disconnected';
+    }
+    function aplicarEstadoServico(serviceId, estado) {
+      if (!estado) return;
+      const service = SERVICES[serviceId];
+      if (!service) return;
+      const status = normalizarStatus(estado.status);
+      service.status = status;
+      const dot = document.getElementById('dot-' + serviceId);
+      const label = document.getElementById('label-' + serviceId);
+      const toggleBtn = document.getElementById('toggle-' + serviceId);
+      const restartBtn = document.getElementById('restart-' + serviceId);
+      if (dot) {
+        dot.className = 'status-dot';
+        if (status === 'online') dot.classList.add('online');
+        else if (status === 'starting' || status === 'stopping') dot.classList.add('connecting');
+        else if (status === 'error') dot.classList.add('error');
+      }
+      if (label) label.textContent = STATUS_ROTULOS[status] || status;
+      if (toggleBtn) {
+        const ativo = (status === 'online' || status === 'starting');
+        toggleBtn.setAttribute('aria-checked', ativo ? 'true' : 'false');
+        atualizaAriaLabel(serviceId, ativo);
+      }
+      // Reiniciar só faz sentido com o serviço online.
+      // Durante um reinício em andamento o botão fica travado pelo próprio fluxo.
+      if (restartBtn && !REINICIANDO[serviceId]) {
+        restartBtn.disabled = (status !== 'online');
+      }
+      // O console de comandos do Minecraft só aceita entrada com o servidor online
+      if (serviceId === 'minecraft') {
+        const cmdInput = document.getElementById('mc-command-input');
+        const cmdSend = document.getElementById('mc-command-send');
+        const podeComandar = (status === 'online');
+        if (cmdInput) cmdInput.disabled = !podeComandar;
+        if (cmdSend) cmdSend.disabled = !podeComandar;
+      }
+      const stats = estado.stats || {};
+      if (serviceId === 'minecraft') {
+        const jogadores = document.getElementById('mc-stat-players');
+        const versao = document.getElementById('mc-stat-version');
+        const ping = document.getElementById('mc-stat-ping');
+        if (jogadores) {
+          const j = stats.jogadores;
+          const m = stats.maxJogadores;
+          jogadores.textContent = (j === undefined || j === null) ? '--/--' : j + '/' + (m === undefined || m === null ? '--' : m);
+        }
+        if (versao) versao.textContent = stats.versao || '--';
+        if (ping) ping.textContent = (stats.latencia === undefined || stats.latencia === null) ? '-- ms' : stats.latencia + ' ms';
+      } else {
+        const guilds = document.getElementById('dc-stat-guilds');
+        const comandos = document.getElementById('dc-stat-commands');
+        const ping = document.getElementById('dc-stat-ping');
+        if (guilds) guilds.textContent = (stats.servidores === undefined || stats.servidores === null) ? '--' : stats.servidores;
+        if (comandos) comandos.textContent = (stats.comandos === undefined || stats.comandos === null) ? '--' : stats.comandos;
+        if (ping) ping.textContent = (stats.latencia === undefined || stats.latencia === null) ? '-- ms' : stats.latencia + ' ms';
+      }
+    }
+    function aplicarStatusGeral(payload) {
+      if (!payload) return;
+      const mc = payload.minecraft || payload.mc;
+      const dc = payload.discord || payload.bot;
+      if (mc) aplicarEstadoServico('minecraft', mc);
+      if (dc) aplicarEstadoServico('discord', dc);
+      const rodando = [mc, dc].filter(function (s) {
+        return s && normalizarStatus(s.status) === 'online';
+      }).length;
+      const footer = document.getElementById('footerStatus');
+      if (footer) {
+        footer.textContent = rodando === 2
+          ? 'Status atual: todos os serviços online.'
+          : rodando === 1
+            ? 'Status atual: 1 de 2 serviços online.'
+            : 'Status atual: nenhum serviço online.';
+      }
+    }
+    function consultarStatus() {
+      fetch(API_BASE + '/api/status')
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(aplicarStatusGeral)
+        .catch(function () {
+          setConnectionState('error');
+        });
+    }
+    function toggleServerStatus(serviceId) {
+      const service = SERVICES[serviceId];
+      if (!service) return;
+      const toggleBtn = document.getElementById('toggle-' + serviceId);
+      const dot = document.getElementById('dot-' + serviceId);
+      const label = document.getElementById('label-' + serviceId);
+      if (!toggleBtn || !label || !dot) return;
+      if (toggleBtn.classList.contains('is-loading')) return;
+      const ligado = toggleBtn.getAttribute('aria-checked') === 'true';
+      const acao = ligado ? 'stop' : 'start';
+      toggleBtn.classList.add('is-loading');
+      dot.className = 'status-dot connecting';
+      label.textContent = ligado ? STATUS_ROTULOS.stopping : STATUS_ROTULOS.starting;
+      fetch(API_BASE + '/api/services/' + serviceId + '/' + acao, { method: 'POST' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (estado) {
+          aplicarEstadoServico(serviceId, estado);
+          appendLog(service.consoleId, 'info', service.name + ': ' + (acao === 'start' ? 'início' : 'parada') + ' solicitado.');
+        })
+        .catch(function (e) {
+          appendLog(service.consoleId, 'error', 'Falha ao ' + (acao === 'start' ? 'iniciar' : 'parar') + ' ' + service.name + ': ' + e.message);
+          consultarStatus();
+        })
+        .then(function () {
+          toggleBtn.classList.remove('is-loading');
+          setTimeout(consultarStatus, 1200);
+        });
+    }
+    function reiniciarServico(serviceId) {
+      const service = SERVICES[serviceId];
+      const btn = document.getElementById('restart-' + serviceId);
+      const toggleBtn = document.getElementById('toggle-' + serviceId);
+      const dot = document.getElementById('dot-' + serviceId);
+      const label = document.getElementById('label-' + serviceId);
+      if (!service || !btn || btn.disabled || REINICIANDO[serviceId]) return;
+      REINICIANDO[serviceId] = true;
+      btn.disabled = true;
+      btn.classList.add('girando');
+      if (toggleBtn) toggleBtn.classList.add('is-loading');
+      if (dot) dot.className = 'status-dot connecting';
+      if (label) label.textContent = STATUS_ROTULOS.stopping;
+      appendLog(service.consoleId, 'system', service.name + ': reinício solicitado.');
+      fetch(API_BASE + '/api/services/' + serviceId + '/restart', { method: 'POST' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (estado) {
+          aplicarEstadoServico(serviceId, estado);
+          appendLog(service.consoleId, 'success', service.name + ': reinício concluído.');
+        })
+        .catch(function (e) {
+          appendLog(service.consoleId, 'error', 'Falha ao reiniciar ' + service.name + ': ' + e.message);
+          consultarStatus();
+        })
+        .then(function () {
+          REINICIANDO[serviceId] = false;
+          btn.classList.remove('girando');
+          if (toggleBtn) toggleBtn.classList.remove('is-loading');
+          setTimeout(consultarStatus, 1500);
+        });
+    }
+    function enviarComandoMinecraft() {
+      const input = document.getElementById('mc-command-input');
+      const btn = document.getElementById('mc-command-send');
+      if (!input || !btn) return;
+      const comando = input.value.trim();
+      if (!comando) return;
+      btn.disabled = true;
+      appendLog('minecraft', 'system', '> ' + comando);
+      fetch(API_BASE + '/api/console/minecraft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comando: comando })
+      })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (dados) {
+          if (dados && dados.resposta) {
+            appendLog('minecraft', 'info', String(dados.resposta));
+          }
+          input.value = '';
+        })
+        .catch(function (e) {
+          appendLog('minecraft', 'error', 'Falha ao enviar comando: ' + e.message);
+        })
+        .then(function () {
+          btn.disabled = false;
+          input.focus();
+        });
+    }
+    function horaDe(quando) {
+      const d = quando ? new Date(quando) : new Date();
+      const valido = isNaN(d.getTime()) ? new Date() : d;
+      return [
+        String(valido.getHours()).padStart(2, '0'),
+        String(valido.getMinutes()).padStart(2, '0'),
+        String(valido.getSeconds()).padStart(2, '0')
+      ].join(':');
+    }
+    function appendLog(consoleId, level, message, quando) {
+      const destinos = (consoleId === 'todos')
+        ? ['discord-events', 'discord-bot', 'minecraft']
+        : [consoleId];
+      const classe = NIVEL_PARA_CLASSE[String(level || 'info').toLowerCase()] || 'info';
+      const rotulosNivel = {
+        system: '[SISTEMA]',
+        info: '[INFO]',
+        success: '[SUCESSO]',
+        error: '[ERRO]',
+        warn: '[AVISO]'
+      };
+      destinos.forEach(function (destino) {
+        const container = document.getElementById('console-' + destino);
+        if (!container) return;
+        const inicial = container.querySelector('.log-line.initial');
+        if (inicial) inicial.remove();
+        const elementoLinha = document.createElement('div');
+        elementoLinha.className = 'log-line';
+        const elementoHora = document.createElement('span');
+        elementoHora.className = 'log-time';
+        elementoHora.textContent = '[' + horaDe(quando) + ']';
+        const elementoNivel = document.createElement('span');
+        elementoNivel.className = 'log-level ' + classe;
+        elementoNivel.textContent = rotulosNivel[classe] || '[LOG]';
+        const elementoMsg = document.createElement('span');
+        elementoMsg.className = 'log-msg';
+        elementoMsg.textContent = message;
+        elementoLinha.appendChild(elementoHora);
+        elementoLinha.appendChild(elementoNivel);
+        elementoLinha.appendChild(elementoMsg);
+        container.appendChild(elementoLinha);
+        while (container.childElementCount > MAX_LINHAS) {
+          container.removeChild(container.firstChild);
+        }
+        const checkboxScroll = document.getElementById('autoscroll-' + destino);
+        if (!checkboxScroll || checkboxScroll.checked) {
+          container.scrollTop = container.scrollHeight;
+        }
+      });
+    }
+    function clearConsole(consoleId) {
+      const container = document.getElementById('console-' + consoleId);
+      if (!container) return;
+      container.innerHTML = '';
+      const linha = document.createElement('div');
+      linha.className = 'log-line initial';
+      const nivel = document.createElement('span');
+      nivel.className = 'log-level system';
+      nivel.textContent = '[SISTEMA]';
+      const msg = document.createElement('span');
+      msg.className = 'log-msg';
+      msg.textContent = 'Console limpo.';
+      linha.appendChild(nivel);
+      linha.appendChild(msg);
+      container.appendChild(linha);
+    }
+    function registrarLogDoBackend(entrada) {
+      if (!entrada) return;
+      const texto = entrada.mensagem || entrada.message || entrada.texto || entrada.msg;
+      if (!texto) return;
+      const fonte = String(entrada.fonte || entrada.canal || entrada.source || 'sistema').toLowerCase();
+      const consoleId = FONTE_PARA_CONSOLE[fonte] || 'todos';
+      const nivel = entrada.nivel || entrada.level || 'info';
+      const quando = entrada.ts || entrada.timestamp || entrada.time || Date.now();
+      appendLog(consoleId, nivel, texto, quando);
+    }
+    let tentativas = 0;
+    function conectarWebSocket() {
+      let ws;
+      try {
+        ws = new WebSocket(WS_URL);
+      } catch (e) {
+        setConnectionState('error');
+        return;
+      }
+      ws.onopen = function () {
+        tentativas = 0;
+        setConnectionState('online');
+        appendLog('todos', 'system', 'Conectado ao painel em tempo real.');
+      };
+      ws.onmessage = function (evento) {
+        let msg;
+        try {
+          msg = JSON.parse(evento.data);
+        } catch (e) {
+          return;
+        }
+        const tipo = msg.tipo || msg.type;
+        if (tipo === 'hello' || tipo === 'init') {
+          const dados = msg.dados || msg.data || {};
+          if (dados.servicos) aplicarStatusGeral(dados.servicos);
+          if (Array.isArray(dados.logs)) {
+            dados.logs.forEach(registrarLogDoBackend);
+          }
+          return;
+        }
+        if (tipo === 'status' || tipo === 'state') {
+          aplicarStatusGeral(msg.dados || msg.data || msg);
+          return;
+        }
+        if (tipo === 'log') {
+          registrarLogDoBackend(msg.dados || msg.data || msg);
+          return;
+        }
+        if (msg.dados && (msg.dados.fonte || msg.dados.mensagem)) {
+          registrarLogDoBackend(msg.dados);
+          return;
+        }
+        if (msg.fonte || msg.mensagem) {
+          registrarLogDoBackend(msg);
+        }
+      };
+      ws.onclose = function () {
+        tentativas++;
+        setConnectionState('reconnecting');
+        const espera = Math.min(15000, 1000 * tentativas);
+        setTimeout(conectarWebSocket, espera);
+      };
+      ws.onerror = function () {
+        try { ws.close(); } catch (e) {}
+      };
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      setConnectionState('initial');
+      atualizaAriaLabel('minecraft', false);
+      atualizaAriaLabel('discord', false);
+      document.querySelectorAll('.custom-switch').forEach(function (botao) {
+        botao.addEventListener('keydown', function (evento) {
+          if (evento.key === ' ' || evento.key === 'Enter') {
+            evento.preventDefault();
+            botao.click();
+          }
+        });
+      });
+      const cmdInput = document.getElementById('mc-command-input');
+      if (cmdInput) {
+        cmdInput.addEventListener('keydown', function (evento) {
+          if (evento.key === 'Enter') {
+            evento.preventDefault();
+            enviarComandoMinecraft();
+          }
+        });
+      }
+      consultarStatus();
+      conectarWebSocket();
+      setInterval(consultarStatus, 4000);
+    });
+  </script>
+</body>
+</html>

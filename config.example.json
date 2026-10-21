@@ -1,0 +1,22 @@
+{
+  "panel": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "publicDir": "public"
+  },
+  "minecraft": {
+    "host": "127.0.0.1",
+    "port": 25565,
+    "cwd": "C:/CAMINHO/DO/SEU/SERVIDOR",
+    "startCommand": "run.bat",
+    "logFile": "C:/CAMINHO/DO/SEU/SERVIDOR/logs/latest.log"
+  },
+  "discord": {
+    "consoleChannelId": "ID_DO_CANAL_DE_LOGS"
+  },
+  "rcon": {
+    "host": "127.0.0.1",
+    "port": 25575,
+    "password": "SUA_SENHA_RCON"
+  }
+}

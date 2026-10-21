@@ -1,0 +1,22 @@
+{
+  "name": "monkeys-craft-panel",
+  "version": "1.0.0",
+  "description": "Painel de controle do servidor Monkey's Craft e do bot do Discord",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "minecraft-server-util": "^5.4.0",
+    "rcon-client": "^4.2.5",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
