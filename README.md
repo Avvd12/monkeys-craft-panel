@@ -1,3 +1,4 @@
+**🇧🇷 Português** · [🇺🇸 English](README.en.md)
 # 🎮 Monkey's Craft — Painel de Controle
 
 Painel web para gerenciamento do servidor de Minecraft e do bot do Discord do **Monkey's Craft**, desenvolvido em **JavaScript (Node.js)**. Liga, desliga e reinicia os serviços pelo navegador, transmite os logs em tempo real e envia comandos ao servidor via RCON.
