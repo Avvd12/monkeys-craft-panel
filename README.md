@@ -2,8 +2,6 @@
 
 Painel web para gerenciamento do servidor de Minecraft e do bot do Discord do **Monkey's Craft**, desenvolvido em **JavaScript (Node.js)**. Liga, desliga e reinicia os serviços pelo navegador, transmite os logs em tempo real e envia comandos ao servidor via RCON.
 
-![Painel do Monkey's Craft](docs/painel.png)
-
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white)
 ![discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white)
