@@ -4,13 +4,12 @@ Web panel for managing the **Monkey's Craft** Minecraft server and Discord bot, 
 
 [🇧🇷 Português](README.md) · [🇺🇸 English](README.en.md)
 
-![Panel](https://github.com/user-attachments/assets/2ce99c48-a1a0-466a-afdd-bdee9d3b1b9d)
+### 📷 Dashboard images:
+<img width="1906" height="964" alt="image" src="https://github.com/user-attachments/assets/be98ab90-69cf-4c86-9cb9-78ea074a283a" />
 
-![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white)
-![discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-WAL-003B57?logo=sqlite&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-blue)
+<img width="1902" height="964" alt="image" src="https://github.com/user-attachments/assets/4171abaa-8141-45ba-9d8f-73f74a516a3c" />
+
+<img width="1903" height="964" alt="image" src="https://github.com/user-attachments/assets/750f08ed-002e-492a-8fee-599995ff928b" />
 
 ---
 
