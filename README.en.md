@@ -1,15 +1,16 @@
 # 🎮 Monkey's Craft — Control Panel
 
-Web panel for managing the **Monkey's Craft** Minecraft server and Discord bot, built with **JavaScript (Node.js)**. Start, stop and restart services from the browser, stream logs in real time, send commands to the server over RCON, and host a Discord bot with economy, reputation and ticket systems.
+Web panel for managing the **Monkey's Craft** Minecraft server and Discord bot, built with **JavaScript (Node.js)**. Start, stop and restart services from the browser, stream logs in real time, send commands to the server over RCON, and host a Discord bot with moderation and ticket systems.
 
 [🇧🇷 Português](README.md) · [🇺🇸 English](README.en.md)
 
-### 📷 Dashboard images:
-<img width="1906" height="964" alt="image" src="https://github.com/user-attachments/assets/be98ab90-69cf-4c86-9cb9-78ea074a283a" />
+![Panel](https://github.com/user-attachments/assets/2ce99c48-a1a0-466a-afdd-bdee9d3b1b9d)
 
-<img width="1902" height="964" alt="image" src="https://github.com/user-attachments/assets/4171abaa-8141-45ba-9d8f-73f74a516a3c" />
-
-<img width="1903" height="964" alt="image" src="https://github.com/user-attachments/assets/750f08ed-002e-492a-8fee-599995ff928b" />
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white)
+![discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-WAL-003B57?logo=sqlite&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
 
@@ -30,14 +31,11 @@ Web panel for managing the **Monkey's Craft** Minecraft server and Discord bot, 
 
 ### Bot
 
-- 🤖 **50 slash commands** across 10 categories, loaded automatically from subfolders.
-- 💚 **Emerald Economy:** daily reward, transfers between members, ranking and betting.
-- ⭐ **Reputation:** point system between members, with a ranking of the most respected.
+- 🤖 **25 slash commands** across 4 categories, loaded automatically from subfolders.
+- 📘 **Information:** help, ping, serverinfo and userinfo.
+- 🎮 **Minecraft integration:** status, players, whitelist, backup, restart, say, tps, skin and UUID.
+- 🛠️ **Full moderation:** ban, baninfo, clear, kick, mute, slowmode, unban, unmute, unwarn, warn and warnings.
 - 🎫 **Tickets:** panel with a persistent button that creates a private channel and survives bot restarts.
-- 📊 **Levels and XP:** progression through messages, with a level card and paginated ranking.
-- ⏰ **Reminders:** scheduler that notifies the member in the channel where the reminder was created.
-- 🛠️ **Full moderation:** ban, kick, mute, unmute, warn, warnings, unban, unwarn, baninfo, clear, slowmode, lock and role.
-- 🎮 **Minecraft integration:** status, online players, whitelist, console, restart, say, tps, skin and UUID.
 
 ---
 
@@ -62,18 +60,13 @@ monkeys-craft-panel/
 │   │   └── files.js           # File manager
 │   ├── bot/
 │   │   ├── client.js          # Bot runtime and command registration
-│   │   ├── comandos/          # 50 commands across 10 categories
+│   │   ├── service.js         # Service layer: lifecycle, state and message sending
+│   │   ├── comandos/          # 25 commands across 4 categories
 │   │   │   ├── index.js       # Recursive loader
 │   │   │   ├── info/
 │   │   │   ├── minecraft/
 │   │   │   ├── moderacao/
-│   │   │   ├── tickets/
-│   │   │   ├── config/
-│   │   │   ├── engajamento/
-│   │   │   ├── economia/
-│   │   │   ├── social/
-│   │   │   ├── util/
-│   │   │   └── diversao/
+│   │   │   └── tickets/
 │   │   └── util/
 │   │       ├── banco.js       # SQLite: warnings, links, tickets, config, levels, emeralds, reputation, reminders
 │   │       ├── embeds.js      # Visual standard for replies
@@ -199,30 +192,26 @@ Write routes require an active session and a compatible role. Without a session 
 
 ## 🤖 Bot Commands
 
-The bot loads **50 commands**, spread across 10 categories.
+The bot loads **25 commands**, spread across 4 categories.
 
 | Category | Commands | Total |
 |---|---|---|
-| Information | `ping`, `help`, `userinfo`, `serverinfo`, `avatar`, `uptime` | 6 |
-| Minecraft | `status`, `players`, `ip`, `whitelist`, `console`, `restart`, `say`, `tps`, `skin`, `uuid`, `backup` | 11 |
-| Moderation | `ban`, `kick`, `mute`, `unmute`, `warn`, `warnings`, `unban`, `unwarn`, `baninfo`, `clear`, `slowmode`, `lock`, `role` | 13 |
+| Information | `help`, `ping`, `serverinfo`, `userinfo` | 4 |
+| Minecraft | `backup`, `players`, `restart`, `say`, `skin`, `status`, `tps`, `uuid`, `whitelist` | 9 |
+| Moderation | `ban`, `baninfo`, `clear`, `kick`, `mute`, `slowmode`, `unban`, `unmute`, `unwarn`, `warn`, `warnings` | 11 |
 | Tickets | `ticket` | 1 |
-| Configuration | `config` | 1 |
-| Engagement | `rank`, `leaderboard` | 2 |
-| Economy | `daily`, `saldo`, `pagar`, `ricos`, `apostar` | 5 |
-| Social | `rep`, `ship` | 2 |
-| Utilities | `calc`, `lembrete`, `escolher` | 3 |
-| Fun | `poll`, `giveaway`, `dice`, `8ball`, `girarmoeda`, `jankenpon` | 6 |
-| **Total** | | **50** |
+| **Total** | | **25** |
+
+`/whitelist` has the subcommands `add` and `remove`. Discord lists each one on its own line, but it is a single command.
 
 The exact number appears in the terminal when the bot starts:
 
 ```text
-[BOT] 50 comandos carregados.
-[BOT] 50 comandos registrados no Discord.
+[BOT] 25 comandos carregados.
+[BOT] 25 comandos registrados no Discord.
 ```
 
-If the number is lower than 50, the terminal itself reports which file failed to load.
+If the number is lower than 25, the terminal itself reports which file failed to load.
 
 ---
 
@@ -245,6 +234,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 - **RCON must be enabled** in the Minecraft `server.properties`, with `enable-rcon=true`, a password and a port. Without it, shutdown falls back to a forced kill and the world may not be saved properly.
 - **Do not run `run.bat` on its own** while the panel is running. The server should only be started from the interface, to avoid `session.lock` conflicts.
+- **Commands are registered in a single scope.** Registering the same command globally and per guild makes Discord list it twice. Keep only one registration path and do not keep a legacy `commands/` folder at the project root.
 - The project was developed and tested on **Windows**, using `netstat` and `taskkill` for process detection and termination.
 - The `.env` file, any `config.json` with real credentials, `usuarios.json` and the `dados/` folder **must not be versioned**.
 - `/backup` runs `save-all` over RCON, which saves the world to disk. It does not produce a `.zip` archive of the world.
