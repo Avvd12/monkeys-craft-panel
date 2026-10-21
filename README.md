@@ -4,12 +4,7 @@ Painel web para gerenciamento do servidor de Minecraft e do bot do Discord do **
 
 [🇧🇷 Português](README.md) · [🇺🇸 English](README.en.md)
 
-### 📷 Imagens do painel:
-<img width="1906" height="964" alt="image" src="https://github.com/user-attachments/assets/be98ab90-69cf-4c86-9cb9-78ea074a283a" />
-
-<img width="1902" height="964" alt="image" src="https://github.com/user-attachments/assets/4171abaa-8141-45ba-9d8f-73f74a516a3c" />
-
-<img width="1903" height="964" alt="image" src="https://github.com/user-attachments/assets/750f08ed-002e-492a-8fee-599995ff928b" />
+![Painel](https://github.com/user-attachments/assets/2ce99c48-a1a0-466a-afdd-bdee9d3b1b9d)
 
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white)
@@ -36,7 +31,7 @@ Painel web para gerenciamento do servidor de Minecraft e do bot do Discord do **
 
 ### Bot
 
-- 🤖 **Slash commands** em 10 categorias, carregados automaticamente das subpastas.
+- 🤖 **50 slash commands** em 10 categorias, carregados automaticamente das subpastas.
 - 💚 **Economia com Esmeraldas:** recompensa diária, transferência entre membros, ranking e apostas.
 - ⭐ **Reputação:** sistema de pontos entre membros, com ranking dos mais respeitados.
 - 🎫 **Tickets:** painel com botão persistente que cria canal privado e sobrevive a reinício do bot.
@@ -68,13 +63,14 @@ monkeys-craft-panel/
 │   │   └── files.js           # Gerenciador de arquivos
 │   ├── bot/
 │   │   ├── client.js          # Runtime do bot e registro de comandos
-│   │   ├── comandos/          # Slash commands, agrupados por categoria
+│   │   ├── comandos/          # 50 comandos em 10 categorias
 │   │   │   ├── index.js       # Carregador recursivo
 │   │   │   ├── info/
 │   │   │   ├── minecraft/
 │   │   │   ├── moderacao/
 │   │   │   ├── tickets/
 │   │   │   ├── config/
+│   │   │   ├── engajamento/
 │   │   │   ├── economia/
 │   │   │   ├── social/
 │   │   │   ├── util/
