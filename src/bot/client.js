@@ -1,341 +1,160 @@
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
-const {
-  Client,
-  Collection,
-  GatewayIntentBits,
-  Events,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType
-} = require('discord.js');
-const config = require('../../config.json');
-const { carregarComandos } = require('./comandos');
-const { embed } = require('./util/embeds');
-const banco = require('./util/banco');
-const { iniciarAgendador } = require('./util/agendador');
+const { spawn } = require('child_process');
+const dotenv = require('dotenv');
 
-function createBot(hubOuCtx, minecraftArg) {
-  const ctx = (hubOuCtx && typeof hubOuCtx === 'object' && hubOuCtx.hub)
-    ? hubOuCtx
-    : { hub: hubOuCtx, minecraft: minecraftArg };
-
-  const hub = ctx.hub;
-  const minecraft = ctx.minecraft || null;
+function createBot({ hub, config } = {}) {
+  const pastaBot = path.resolve(__dirname, '..', '..', '..', 'discord-bot');
+  let proc = null;
+  let iniciadoEm = null;
+  let comandosProcessados = 0;
+  let timestampsComandos = [];
+  let timerStatus = null;
 
   const estado = {
     servico: 'discord',
     status: 'offline',
-    stats: { servidores: null, comandos: null, latencia: null }
+    stats: {
+      gateway: 'DISCONNECTED',
+      servidores: 0,
+      comandos: 0,
+      comandosPorMinuto: 0,
+      latencia: null,
+      uptimeSegundos: 0
+    }
   };
 
-  let client = null;
-  let timerLatencia = null;
-  let execucoes = 0;
+  function atualizarCpm() {
+    const agora = Date.now();
+    timestampsComandos = timestampsComandos.filter((t) => agora - t <= 60000);
+    estado.stats.comandosPorMinuto = timestampsComandos.length;
+    estado.stats.comandos = comandosProcessados;
+  }
 
-  const contexto = {
-    comandos: null,
-    hub,
-    minecraft,
-    config,
-    banco
-  };
-
-  function definirStatus(s, stats = estado.stats) {
+  function emitirStatus(s) {
     estado.status = s;
-    estado.stats = stats;
-    hub.status('discord', s, estado.stats);
-  }
-
-  function logBot(nivel, mensagem) {
-    hub.log('bot', nivel, mensagem);
-  }
-
-  function carregarTodosComandos(c) {
-    c.commands = new Collection();
-
-    try {
-      const novos = carregarComandos();
-      for (const [nome, cmd] of novos) c.commands.set(nome, cmd);
-    } catch (e) {
-      logBot('erro', `Falha ao carregar comandos: ${e.message}`);
-    }
-
-    estado.stats.comandos = c.commands.size;
-    logBot('sistema', `${c.commands.size} comandos carregados`);
-  }
-
-  function carregarEventos(c) {
-    const dir = path.join(__dirname, '..', 'events');
-    if (!fs.existsSync(dir)) return;
-
-    for (const arquivo of fs.readdirSync(dir).filter((f) => f.endsWith('.js'))) {
-      try {
-        const evt = require(path.join(dir, arquivo));
-        if (!evt.name) continue;
-        if (evt.once) c.once(evt.name, (...args) => evt.execute(...args));
-        else c.on(evt.name, (...args) => evt.execute(...args));
-      } catch (e) {
-        logBot('erro', `Falha ao carregar evento ${arquivo}: ${e.message}`);
-      }
+    estado.stats.gateway = s === 'online' ? 'CONNECTED (Shard 0)' : 'DISCONNECTED';
+    estado.stats.servidores = s === 'online' ? (estado.stats.servidores || 1) : 0;
+    estado.stats.uptimeSegundos = iniciadoEm ? Math.floor((Date.now() - iniciadoEm) / 1000) : 0;
+    atualizarCpm();
+    if (hub && typeof hub.status === 'function') {
+      hub.status('discord', s, estado.stats);
     }
   }
 
-  // Ping negativo significa que o primeiro heartbeat ainda não voltou.
-  // Nesse caso o valor vira null e o painel mostra "--" em vez de "-1".
-  function atualizarMetricas() {
-    if (!client) return;
-    const ping = client.ws ? client.ws.ping : -1;
-    estado.stats.latencia = (typeof ping === 'number' && ping >= 0) ? Math.round(ping) : null;
-    if (client.guilds) estado.stats.servidores = client.guilds.cache.size;
-    if (client.commands) estado.stats.comandos = client.commands.size;
-    if (estado.status === 'online') definirStatus('online', estado.stats);
-  }
-
-  function pararMetricas() {
-    if (timerLatencia) {
-      clearInterval(timerLatencia);
-      timerLatencia = null;
-    }
-  }
-
-  async function tratarBotao(interacao) {
-    if (interacao.customId === 'restart:confirmar') {
-      await interacao.update({
-        embeds: [embed('minecraft', 'Reiniciando', 'O servidor esta sendo reiniciado.')],
-        components: []
-      });
-
-      try {
-        if (minecraft && typeof minecraft.reiniciar === 'function') {
-          await minecraft.reiniciar();
-        } else if (minecraft && typeof minecraft.executar === 'function') {
-          await minecraft.executar('restart');
-        } else {
-          throw new Error('Gerenciador do Minecraft indisponivel.');
-        }
-      } catch (e) {
-        await interacao.followUp({
-          embeds: [embed('erro', 'Falha ao reiniciar', e.message)],
-          ephemeral: true
-        });
-      }
-      return;
-    }
-
-    if (interacao.customId === 'restart:cancelar') {
-      await interacao.update({
-        embeds: [embed('info', 'Cancelado', 'O reinicio foi cancelado.')],
-        components: []
-      });
-      return;
-    }
-
-    if (interacao.customId === 'ticket:abrir') {
-      await interacao.deferReply({ ephemeral: true });
-
-      const nomeCanal = `ticket-${interacao.user.username.toLowerCase()}`;
-      const existente = interacao.guild.channels.cache.find(
-        (ch) => ch.name === nomeCanal && ch.type === ChannelType.GuildText
-      );
-
-      if (existente) {
-        return interacao.editReply({
-          embeds: [embed('info', 'Ticket ja aberto', `Voce ja tem um ticket: ${existente}`)]
-        });
-      }
-
-      const canal = await interacao.guild.channels.create({
-        name: nomeCanal,
-        type: ChannelType.GuildText,
-        permissionOverwrites: [
-          { id: interacao.guild.roles.everyone.id, deny: ['ViewChannel'] },
-          { id: interacao.user.id, allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory'] }
-        ]
-      });
-
-      banco.criarTicket(interacao.guildId, canal.id, interacao.user.id, null);
-
-      const linha = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('ticket:fechar').setLabel('Fechar ticket').setStyle(ButtonStyle.Danger)
-      );
-
-      await canal.send({
-        content: `${interacao.user}`,
-        embeds: [embed('ticket', 'Ticket aberto', 'Descreva sua duvida ou problema. A equipe respondera em breve.')],
-        components: [linha]
-      });
-
-      return interacao.editReply({
-        embeds: [embed('sucesso', 'Ticket criado', `Seu atendimento esta em ${canal}.`)]
-      });
-    }
-
-    if (interacao.customId === 'ticket:fechar') {
-      const ticket = banco.ticketPorCanal(interacao.channelId);
-
-      if (!ticket) {
-        return interacao.reply({
-          embeds: [embed('erro', 'Nao e um ticket', 'Este canal nao esta registrado.')],
-          ephemeral: true
-        });
-      }
-
-      banco.fecharTicket(interacao.channelId);
-      await interacao.reply({
-        embeds: [embed('sucesso', 'Ticket fechado', 'Este canal sera apagado em 10 segundos.')]
-      });
-
-      setTimeout(() => interacao.channel.delete().catch(() => {}), 10000);
-    }
-  }
-
-  function ligarRuntime(c) {
-    c.on(Events.ClientReady, async (ready) => {
-      banco.abrir();
-      iniciarAgendador(c);
-
-      estado.stats.servidores = ready.guilds.cache.size;
-      estado.stats.comandos = c.commands ? c.commands.size : null;
-      const ping = ready.ws ? ready.ws.ping : -1;
-      estado.stats.latencia = (typeof ping === 'number' && ping >= 0) ? Math.round(ping) : null;
-      definirStatus('online');
-      logBot('sistema', `Bot conectado como ${ready.user.tag} em ${estado.stats.servidores} servidores`);
-
-      try {
-        const corpo = [...c.commands.values()].map((cmd) => {
-          const dados = cmd.dados || cmd.data;
-          return dados && typeof dados.toJSON === 'function' ? dados.toJSON() : dados;
-        });
-
-        await c.application.commands.set(corpo);
-        logBot('sistema', `${corpo.length} comandos registrados no Discord`);
-      } catch (e) {
-        logBot('erro', `Falha ao registrar comandos: ${e.message}`);
-      }
-
-      pararMetricas();
-      timerLatencia = setInterval(atualizarMetricas, 15000);
-    });
-
-    c.on(Events.Error, (e) => logBot('erro', e.message));
-    c.on(Events.Warn, (w) => logBot('aviso', String(w)));
-
-    c.on(Events.InteractionCreate, async (interacao) => {
-      if (interacao.isChatInputCommand()) {
-        const cmd = c.commands.get(interacao.commandName);
-        if (!cmd) return;
-
-        execucoes++;
-        logBot('info', `/${interacao.commandName} executado por ${interacao.user.tag} (total: ${execucoes})`);
-
-        try {
-          const acao = cmd.executar || cmd.execute;
-          await acao.call(cmd, interacao, contexto);
-        } catch (e) {
-          logBot('erro', `Erro em /${interacao.commandName}: ${e.message}`);
-
-          const resposta = {
-            embeds: [embed('erro', 'Algo deu errado', 'O comando falhou. Tente novamente em instantes.')],
-            ephemeral: true
-          };
-
-          if (interacao.deferred || interacao.replied) {
-            await interacao.editReply(resposta).catch(() => {});
-          } else {
-            await interacao.reply(resposta).catch(() => {});
-          }
-        }
-        return;
-      }
-
-      if (interacao.isButton()) {
-        try {
-          await tratarBotao(interacao);
-        } catch (e) {
-          logBot('erro', `Erro no botao ${interacao.customId}: ${e.message}`);
-        }
-      }
-    });
+  function log(nivel, msg) {
+    if (hub && typeof hub.log === 'function') hub.log('bot', nivel, msg);
   }
 
   async function iniciar() {
-    if (client) throw new Error('Bot já está em execução');
+    if (proc) return estado;
+    emitirStatus('iniciando');
+    log('sistema', `A iniciar Bot do Discord em ${pastaBot}...`);
 
-    definirStatus('iniciando');
-    logBot('sistema', 'Conectando ao Discord...');
+    try {
+      const envBot = { ...process.env };
+      const parsedEnv = dotenv.config({ path: path.join(pastaBot, '.env') });
+      if (parsedEnv && parsedEnv.parsed) {
+        Object.assign(envBot, parsedEnv.parsed);
+      }
 
-    const token = process.env.DISCORD_TOKEN;
-    if (!token) throw new Error('DISCORD_TOKEN não definido no .env');
+      proc = spawn(process.execPath, ['index.js'], {
+        cwd: pastaBot,
+        env: envBot,
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
 
-    client = new Client({
-      intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers
-      ]
-    });
+      iniciadoEm = Date.now();
+      emitirStatus('online');
 
-    client.hub = hub;
+      if (timerStatus) clearInterval(timerStatus);
+      timerStatus = setInterval(() => {
+        if (proc) emitirStatus('online');
+      }, 5000);
 
-    carregarTodosComandos(client);
-    contexto.comandos = client.commands;
-    carregarEventos(client);
-    ligarRuntime(client);
+      proc.stdout.on('data', (d) => {
+        for (const l of d.toString('utf8').split(/\r?\n/)) {
+          const texto = l.trim();
+          if (!texto) continue;
+          if (/comando|command|executou|interaction|!\w+|\/\w+/i.test(texto)) {
+            comandosProcessados += 1;
+            timestampsComandos.push(Date.now());
+            atualizarCpm();
+          }
+          const mPing = texto.match(/lat[eê]ncia[:\s]+(\d+)\s*ms|ping[:\s]+(\d+)\s*ms/i);
+          if (mPing) {
+            estado.stats.latencia = parseInt(mPing[1] || mPing[2], 10);
+          }
+          log('info', texto);
+          emitirStatus('online');
+        }
+      });
 
-    await client.login(token);
+      proc.stderr.on('data', (d) => {
+        for (const l of d.toString('utf8').split(/\r?\n/)) {
+          if (l.trim()) log('erro', l.trim());
+        }
+      });
+
+      proc.on('exit', (code) => {
+        proc = null;
+        iniciadoEm = null;
+        if (timerStatus) { clearInterval(timerStatus); timerStatus = null; }
+        estado.stats.latencia = null;
+        log('aviso', `Processo do Bot Discord terminado (código ${code ?? 0}).`);
+        emitirStatus('offline');
+      });
+    } catch (e) {
+      proc = null;
+      log('erro', `Falha ao iniciar Bot Discord: ${e.message}`);
+      emitirStatus('erro');
+    }
+
     return estado;
   }
 
   async function parar() {
-    if (!client) return estado;
-
-    definirStatus('parando');
-    logBot('sistema', 'Desconectando do Discord...');
-    pararMetricas();
-
-    await client.destroy();
-    client = null;
-    estado.stats = { servidores: null, comandos: null, latencia: null };
-    definirStatus('offline');
-
+    if (timerStatus) { clearInterval(timerStatus); timerStatus = null; }
+    if (!proc) {
+      emitirStatus('offline');
+      return estado;
+    }
+    emitirStatus('parando');
+    log('sistema', 'A parar Bot do Discord...');
+    proc.kill('SIGTERM');
+    proc = null;
+    iniciadoEm = null;
+    estado.stats.latencia = null;
+    emitirStatus('offline');
     return estado;
   }
 
   async function reiniciar() {
-    logBot('sistema', 'Reiniciando bot do Discord...');
     await parar();
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1200));
     return iniciar();
   }
 
-  async function enviarMensagem(texto) {
-    if (!client) throw new Error('Bot não está conectado');
-    const canal = await client.channels.fetch(config.discord.consoleChannelId);
-    if (!canal || !canal.isTextBased()) throw new Error('Canal inválido');
-    await canal.send(texto);
-    logBot('info', `Mensagem enviada ao canal: ${texto}`);
-  }
-
   function obterEstado() {
+    estado.stats.uptimeSegundos = iniciadoEm ? Math.floor((Date.now() - iniciadoEm) / 1000) : 0;
+    atualizarCpm();
     return JSON.parse(JSON.stringify(estado));
   }
 
+  if (config && config.discord && config.discord.autoStart) {
+    iniciar().catch(() => {});
+  }
+
   return {
-    start: iniciar,
-    stop: parar,
-    restart: reiniciar,
-    sendMessage: enviarMensagem,
-    getState: obterEstado,
     iniciar,
     parar,
     reiniciar,
-    enviarMensagem,
-    obterEstado
+    start: iniciar,
+    stop: parar,
+    restart: reiniciar,
+    obterEstado,
+    getState: obterEstado
   };
 }
 

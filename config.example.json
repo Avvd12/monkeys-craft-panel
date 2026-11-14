@@ -1,22 +1,38 @@
 {
   "panel": {
-    "port": 3000,
     "host": "0.0.0.0",
-    "publicDir": "public"
+    "port": 3000,
+    "publicDir": "./public"
   },
   "minecraft": {
     "host": "127.0.0.1",
-    "port": 25565,
-    "cwd": "C:/CAMINHO/DO/SEU/SERVIDOR",
-    "startCommand": "run.bat",
-    "logFile": "C:/CAMINHO/DO/SEU/SERVIDOR/logs/latest.log"
-  },
-  "discord": {
-    "consoleChannelId": "ID_DO_CANAL_DE_LOGS"
+    "port": 25565
   },
   "rcon": {
     "host": "127.0.0.1",
     "port": 25575,
     "password": "SUA_SENHA_RCON"
+  },
+  "server": {
+    "cwd": "C:/CAMINHO/DO/SEU/SERVIDOR",
+    "command": "run.bat",
+    "args": [],
+    "autoStart": true
+  },
+  "discord": {
+    "consoleChannelId": "ID_DO_CANAL_DE_LOGS",
+    "commandPrefix": "!mc",
+    "logFile": "C:/CAMINHO/DO/SEU/SERVIDOR/logs/latest.log",
+    "autoStart": false
+  },
+  "backups": {
+    "mundos": ["world", "world_nether", "world_the_end"],
+    "incluir": ["plugins", "mods", "config", "server.properties", "ops.json", "whitelist.json", "banned-players.json", "banned-ips.json"],
+    "retencao": { "manter": 10, "diarios": 7, "semanais": 4 },
+    "agendamento": "0 4 * * *",
+    "timezone": "America/Sao_Paulo",
+    "backupComJogadoresZerados": true,
+    "intervaloMonitorMin": 10,
+    "minimoHorasEntreBackups": 6
   }
 }

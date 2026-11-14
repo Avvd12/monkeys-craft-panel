@@ -1,29 +1,56 @@
 # Dependências
 node_modules/
+package-lock.json.bak
 
-# Variáveis de ambiente (token do bot)
+# Variáveis de ambiente e credenciais
 .env
-.env.local
+.env.*
+!.env.example
 
-# Configuração local (caminhos e senha do RCON)
-config.json
+# Bancos de dados e sessões (SQLite)
+*.db
+*.db-wal
+*.db-shm
+dados/*.db
+dados/*.db-wal
+dados/*.db-shm
 
-# Logs
+# Backups e arquivos compactados
+dados/backups/
+dados/backups/tmp/
+dados/backups/rollback/
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Logs e auditoria local
 logs/
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+acessos.log
 
-# Sistema
+# Arquivos de contas locais e temporários
+usuarios.json
+_auditoria/
+*.bak
+*.bak*
+*.old.js
+*.docx
+*.txt
+
+# Configurações locais com senhas
+config.json
+
+# Sistema operacional
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Editores
+# Editores e IDEs
 .vscode/
 .idea/
 *.swp
-# Backups locais
-*.old.js
-# Login
-usuarios.json
-acessos.log
+*.swo

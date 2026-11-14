@@ -1,0 +1,1 @@
+await fetch('/api/console/minecraft', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ comando: 'op Teste' }) }).then(r => console.log(r.status));

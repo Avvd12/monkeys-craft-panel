@@ -12,12 +12,12 @@ const LIMITE_TEXTO = 2 * 1024 * 1024;
 const EXTENSOES_TEXTO = new Set([
   '.txt', '.log', '.yml', '.yaml', '.json', '.properties', '.toml', '.ini', '.cfg', '.conf',
   '.md', '.csv', '.tsv', '.js', '.mjs', '.cjs', '.ts', '.sh', '.bat', '.ps1', '.py',
-  '.html', '.css', '.xml', '.lang', '.mcmeta', '.snbt', '.gitignore', '.env'
+  '.html', '.css', '.xml', '.lang', '.mcmeta', '.snbt', '.gitignore'
 ]);
 
 const NOMES_BLOQUEADOS = new Set([
   '.env', 'usuarios.json', 'acessos.log', 'node_modules', '.git', 'session',
-  'package-lock.json', 'painel.log'
+  'package-lock.json', 'painel.log', 'sessoes.db', 'painel.db'
 ]);
 
 class ErroArquivo extends Error {
@@ -34,7 +34,7 @@ function montarAreas(config) {
 
   if (!cwd || !fs.existsSync(cwd)) return areas;
 
-  const raiz = path.resolve(cwd);
+  const raiz = fs.realpathSync(path.resolve(cwd));
   areas.push({ id: 'servidor', rotulo: 'Servidor', caminho: raiz });
 
   const comuns = [
@@ -50,8 +50,9 @@ function montarAreas(config) {
   for (const [pasta, rotulo] of comuns) {
     const alvo = path.join(raiz, pasta);
     try {
-      if (fs.statSync(alvo).isDirectory()) {
-        areas.push({ id: pasta, rotulo, caminho: path.resolve(alvo) });
+      const lstat = fs.lstatSync(alvo);
+      if (lstat.isDirectory() && !lstat.isSymbolicLink()) {
+        areas.push({ id: pasta, rotulo, caminho: fs.realpathSync(alvo) });
       }
     } catch (e) {}
   }
@@ -69,10 +70,11 @@ function criarRotasArquivos({ config, registrarLog }) {
   function areaDe(req) {
     const id = String((req.query && req.query.area) || (req.body && req.body.area) || '').trim();
     const area = mapa.get(id);
-    if (!area) throw new ErroArquivo(400, 'Area invalida.');
+    if (!area) throw new ErroArquivo(400, 'Área inválida ou servidor ainda não vinculado.');
     return area;
   }
 
+  // Requisito 2.5: Restrição estrita à raiz permitida e proibição total de symlinks
   function resolverSeguro(area, relativo) {
     const base = area.caminho;
     const limpo = String(relativo || '').replace(/^[/\\]+/, '');
@@ -80,13 +82,28 @@ function criarRotasArquivos({ config, registrarLog }) {
     const rel = path.relative(base, alvo);
 
     if (rel.startsWith('..') || path.isAbsolute(rel)) {
-      throw new ErroArquivo(400, 'Caminho fora da area permitida.');
+      throw new ErroArquivo(400, 'Caminho fora da área permitida (Path Traversal bloqueado).');
     }
 
     const partes = rel.split(path.sep).filter(Boolean);
+    let acumulado = base;
     for (const parte of partes) {
       if (NOMES_BLOQUEADOS.has(parte.toLowerCase())) {
-        throw new ErroArquivo(403, `O item "${parte}" e protegido e nao pode ser acessado.`);
+        throw new ErroArquivo(403, `O item "${parte}" é protegido e não pode ser acedido.`);
+      }
+      acumulado = path.join(acumulado, parte);
+      if (fs.existsSync(acumulado)) {
+        const lst = fs.lstatSync(acumulado);
+        if (lst.isSymbolicLink()) {
+          throw new ErroArquivo(403, 'Acesso negado: links simbólicos (symlinks) são proibidos por segurança.');
+        }
+      }
+    }
+
+    if (fs.existsSync(alvo)) {
+      const real = fs.realpathSync(alvo);
+      if (real !== base && !real.startsWith(base + path.sep)) {
+        throw new ErroArquivo(403, 'Escape de diretoria detetado e bloqueado.');
       }
     }
 
@@ -100,34 +117,30 @@ function criarRotasArquivos({ config, registrarLog }) {
   function validarNome(nome) {
     const n = String(nome || '').trim();
     if (!n || n === '.' || n === '..' || /[\\/]/.test(n) || /[\x00-\x1f]/.test(n)) {
-      throw new ErroArquivo(400, 'Nome invalido.');
+      throw new ErroArquivo(400, 'Nome inválido.');
     }
     if (NOMES_BLOQUEADOS.has(n.toLowerCase())) {
-      throw new ErroArquivo(403, `O nome "${n}" e protegido.`);
+      throw new ErroArquivo(403, `O nome "${n}" é protegido.`);
     }
     return n;
   }
-
-  /* ---------- areas ---------- */
 
   router.get('/areas', (req, res) => {
     res.json({ areas: areas.map((a) => ({ id: a.id, rotulo: a.rotulo })) });
   });
 
-  /* ---------- listar ---------- */
-
   router.get('/listar', async (req, res, next) => {
     try {
       const area = areaDe(req);
       const alvo = resolverSeguro(area, req.query.caminho);
-      const stat = await fsp.stat(alvo);
+      const stat = await fsp.lstat(alvo);
 
-      if (!stat.isDirectory()) throw new ErroArquivo(400, 'O caminho nao e uma pasta.');
+      if (stat.isSymbolicLink()) throw new ErroArquivo(403, 'Symlinks bloqueados.');
+      if (!stat.isDirectory()) throw new ErroArquivo(400, 'O caminho não é uma pasta.');
 
       const entradas = await fsp.readdir(alvo, { withFileTypes: true });
-
       const itens = entradas
-        .filter((e) => !NOMES_BLOQUEADOS.has(e.name.toLowerCase()))
+        .filter((e) => !e.isSymbolicLink() && !NOMES_BLOQUEADOS.has(e.name.toLowerCase()))
         .map((e) => {
           let tamanho = 0;
           let modificado = null;
@@ -135,7 +148,7 @@ function criarRotasArquivos({ config, registrarLog }) {
             const s = fs.statSync(path.join(alvo, e.name));
             tamanho = s.size;
             modificado = s.mtime.toISOString();
-          } catch (err) {}
+          } catch {}
           return {
             nome: e.name,
             pasta: e.isDirectory(),
@@ -147,60 +160,36 @@ function criarRotasArquivos({ config, registrarLog }) {
         .sort((a, b) => (a.pasta === b.pasta ? a.nome.localeCompare(b.nome) : a.pasta ? -1 : 1));
 
       res.json({ area: area.id, caminho: relativoDe(area, alvo), itens });
-    } catch (e) {
-      next(e);
-    }
+    } catch (e) { next(e); }
   });
-
-  /* ---------- ler ---------- */
 
   router.get('/ler', async (req, res, next) => {
     try {
       const area = areaDe(req);
       const alvo = resolverSeguro(area, req.query.caminho);
-      const stat = await fsp.stat(alvo);
-
-      if (stat.isDirectory()) throw new ErroArquivo(400, 'O caminho e uma pasta.');
-      if (stat.size > LIMITE_TEXTO) {
-        throw new ErroArquivo(413, 'Arquivo grande demais para editar aqui. Baixe e edite localmente.');
-      }
-      if (!EXTENSOES_TEXTO.has(path.extname(alvo).toLowerCase())) {
-        throw new ErroArquivo(415, 'Este tipo de arquivo nao pode ser editado como texto.');
-      }
+      const stat = await fsp.lstat(alvo);
+      if (stat.isSymbolicLink() || stat.isDirectory()) throw new ErroArquivo(400, 'Ficheiro inválido.');
+      if (stat.size > LIMITE_TEXTO) throw new ErroArquivo(413, 'Ficheiro demasiado grande para editar no navegador.');
+      if (!EXTENSOES_TEXTO.has(path.extname(alvo).toLowerCase())) throw new ErroArquivo(415, 'Formato binário não editável.');
 
       const conteudo = await fsp.readFile(alvo, 'utf8');
-
       res.json({ caminho: relativoDe(area, alvo), conteudo, tamanho: stat.size });
-    } catch (e) {
-      next(e);
-    }
+    } catch (e) { next(e); }
   });
-
-  /* ---------- salvar ---------- */
 
   router.put('/salvar', async (req, res, next) => {
     try {
       const area = areaDe(req);
       const alvo = resolverSeguro(area, req.body && req.body.caminho);
       const conteudo = String((req.body && req.body.conteudo) || '');
-
-      if (Buffer.byteLength(conteudo, 'utf8') > LIMITE_TEXTO) {
-        throw new ErroArquivo(413, 'Conteudo grande demais.');
-      }
-      if (!EXTENSOES_TEXTO.has(path.extname(alvo).toLowerCase())) {
-        throw new ErroArquivo(415, 'Este tipo de arquivo nao pode ser salvo como texto.');
-      }
+      if (Buffer.byteLength(conteudo, 'utf8') > LIMITE_TEXTO) throw new ErroArquivo(413, 'Conteúdo excede o limite.');
+      if (!EXTENSOES_TEXTO.has(path.extname(alvo).toLowerCase())) throw new ErroArquivo(415, 'Extensão não permitida.');
 
       await fsp.writeFile(alvo, conteudo, 'utf8');
       registrarLog('arquivo-salvo', req.ip, req.session && req.session.usuario);
-
       res.json({ ok: true, caminho: relativoDe(area, alvo) });
-    } catch (e) {
-      next(e);
-    }
+    } catch (e) { next(e); }
   });
-
-  /* ---------- criar pasta ---------- */
 
   router.post('/pasta', async (req, res, next) => {
     try {
@@ -208,17 +197,11 @@ function criarRotasArquivos({ config, registrarLog }) {
       const pai = resolverSeguro(area, req.body && req.body.caminho);
       const nome = validarNome(req.body && req.body.nome);
       const destino = resolverSeguro(area, path.join(relativoDe(area, pai), nome));
-
       await fsp.mkdir(destino, { recursive: false });
       registrarLog('pasta-criada', req.ip, req.session && req.session.usuario);
-
       res.json({ ok: true, caminho: relativoDe(area, destino) });
-    } catch (e) {
-      next(e);
-    }
+    } catch (e) { next(e); }
   });
-
-  /* ---------- renomear ---------- */
 
   router.post('/renomear', async (req, res, next) => {
     try {
@@ -227,68 +210,43 @@ function criarRotasArquivos({ config, registrarLog }) {
       const nome = validarNome(req.body && req.body.novo);
       const pai = path.dirname(relativoDe(area, origem));
       const destino = resolverSeguro(area, path.join(pai === '.' ? '' : pai, nome));
-
-      if (fs.existsSync(destino)) throw new ErroArquivo(409, 'Ja existe um item com esse nome.');
-
+      if (fs.existsSync(destino)) throw new ErroArquivo(409, 'Já existe um item com esse nome.');
       await fsp.rename(origem, destino);
       registrarLog('arquivo-renomeado', req.ip, req.session && req.session.usuario);
-
       res.json({ ok: true, caminho: relativoDe(area, destino) });
-    } catch (e) {
-      next(e);
-    }
+    } catch (e) { next(e); }
   });
-
-  /* ---------- apagar ---------- */
 
   router.delete('/apagar', async (req, res, next) => {
     try {
       const area = areaDe(req);
       const alvo = resolverSeguro(area, req.body && req.body.caminho);
-
-      if (alvo === area.caminho) throw new ErroArquivo(400, 'Nao e possivel apagar a raiz da area.');
-
-      const stat = await fsp.stat(alvo);
-
+      if (alvo === area.caminho) throw new ErroArquivo(400, 'Proibido apagar a raiz da área.');
+      const stat = await fsp.lstat(alvo);
       if (stat.isDirectory()) await fsp.rm(alvo, { recursive: true, force: true });
       else await fsp.unlink(alvo);
-
       registrarLog('arquivo-apagado', req.ip, req.session && req.session.usuario);
-
       res.json({ ok: true });
-    } catch (e) {
-      next(e);
-    }
+    } catch (e) { next(e); }
   });
-
-  /* ---------- baixar ---------- */
 
   router.get('/baixar', async (req, res, next) => {
     try {
       const area = areaDe(req);
       const alvo = resolverSeguro(area, req.query.caminho);
-      const stat = await fsp.stat(alvo);
-
-      if (stat.isDirectory()) throw new ErroArquivo(400, 'Nao e possivel baixar uma pasta.');
-
+      const stat = await fsp.lstat(alvo);
+      if (stat.isDirectory() || stat.isSymbolicLink()) throw new ErroArquivo(400, 'Operação inválida.');
       res.download(alvo, path.basename(alvo));
-    } catch (e) {
-      next(e);
-    }
+    } catch (e) { next(e); }
   });
-
-  /* ---------- upload ---------- */
 
   const upload = multer({
     storage: multer.diskStorage({
       destination: (req, file, cb) => {
         try {
           const area = areaDe(req);
-          const destino = resolverSeguro(area, req.query.caminho);
-          cb(null, destino);
-        } catch (e) {
-          cb(e);
-        }
+          cb(null, resolverSeguro(area, req.query.caminho));
+        } catch (e) { cb(e); }
       },
       filename: (req, file, cb) => {
         const base = path.basename(file.originalname || 'arquivo');
@@ -303,29 +261,9 @@ function criarRotasArquivos({ config, registrarLog }) {
     res.json({ ok: true, enviados: (req.files || []).map((f) => f.filename) });
   });
 
-  /* ---------- erros ---------- */
-
   router.use((erro, req, res, next) => {
-    let status = 500;
-    let mensagem = 'Nao foi possivel concluir a operacao.';
-
-    if (erro instanceof ErroArquivo) {
-      status = erro.status;
-      mensagem = erro.mensagem;
-    } else if (erro && erro.code === 'LIMIT_FILE_SIZE') {
-      status = 413;
-      mensagem = 'O arquivo passa do limite de 25 MB.';
-    } else if (erro && erro.code === 'ENOENT') {
-      status = 404;
-      mensagem = 'O arquivo ou a pasta nao existe mais.';
-    } else if (erro && erro.code === 'EEXIST') {
-      status = 409;
-      mensagem = 'Ja existe um item com esse nome.';
-    } else if (erro && erro.code === 'EACCES') {
-      status = 403;
-      mensagem = 'Sem permissao para acessar esse arquivo.';
-    }
-
+    const status = erro instanceof ErroArquivo ? erro.status : 500;
+    const mensagem = erro instanceof ErroArquivo ? erro.message : 'Erro na operação de ficheiros.';
     res.status(status).json({ erro: mensagem });
   });
 

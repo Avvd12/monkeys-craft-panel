@@ -4,2114 +4,1778 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Monkey's Craft · Painel de Controle</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --accent: #ffc629;
-      --accent-orange: #ff7a1a;
-      --accent-brown: #6b4226;
-      --accent-discord: #c2185b;
-      --accent-contrast: #111113;
-      --bg: #1a1a1c;
-      --surface: #222225;
-      --card-bg: #28282c;
-      --card-hover: #2e2e33;
-      --border-subtle: #333338;
-      --border-strong: #3d3d44;
-      --text-main: #ffffff;
-      --text-secondary: #9a9aa2;
-      --text-muted: #6a6a72;
-      --font-display: 'Chakra Petch', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
-      --status-disconnected: #6a6a72;
-      --status-connecting: #ffc629;
-      --status-online: #22c55e;
-      --status-error: #ef4444;
+    /* ==========================================================================
+       SISTEMA DE TOKENS: COR DE MARCA (#F0A62B) SEPARADA DE SEMÂNTICA DE STATUS
+       ========================================================================== */
+    :root, [data-theme="dark"] {
+      --accent: #F0A62B;
+      --accent-hover: #d99018;
+      --accent-soft: rgba(240, 166, 43, 0.14);
+      --accent-border: rgba(240, 166, 43, 0.42);
+      --accent-contrast: #09090b;
+
+      --status-ok: #22c55e;
+      --status-info: #38bdf8;
+      --status-warn: #eab308;
+      --status-danger: #ef4444;
+
+      --bg-main: #09090b;
+      --bg-sidebar: #0e0e12;
+      --bg-panel: rgba(18, 18, 23, 0.92);
+      --bg-card: #14141a;
+      --bg-surface: #1c1c24;
+      --bg-terminal: #0a0a0d;
+      --border-color: rgba(255, 255, 255, 0.09);
+      --text-main: #f8fafc;
+      --text-secondary: #b4b4be;
+      --text-muted: #8e8e99;
+      --shadow-panel: 0 20px 50px rgba(0, 0, 0, 0.65);
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+
+    [data-theme="light"] {
+      --accent: #F0A62B;
+      --accent-hover: #d99018;
+      --accent-soft: rgba(240, 166, 43, 0.18);
+      --accent-border: rgba(240, 166, 43, 0.55);
+      --accent-contrast: #09090b;
+
+      --status-ok: #16a34a;
+      --status-info: #0284c7;
+      --status-warn: #ca8a04;
+      --status-danger: #dc2626;
+
+      --bg-main: #f1f5f9;
+      --bg-sidebar: #ffffff;
+      --bg-panel: rgba(255, 255, 255, 0.96);
+      --bg-card: #ffffff;
+      --bg-surface: #f8fafc;
+      --bg-terminal: #0f172a;
+      --border-color: #cbd5e1;
+      --text-main: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --shadow-panel: 0 15px 35px rgba(15, 23, 42, 0.08);
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     [hidden] { display: none !important; }
+
     body {
-      background-color: var(--bg);
-      background-image:
-        radial-gradient(circle at 10% 10%, rgba(255, 198, 41, 0.045) 0%, transparent 40%),
-        radial-gradient(circle at 90% 90%, rgba(255, 122, 26, 0.045) 0%, transparent 40%);
-      background-attachment: fixed;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-main);
       color: var(--text-main);
-      font-family: var(--font-body);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(26, 26, 28, 0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 0.85rem 1.5rem;
-    }
-    .header-content {
-      max-width: 1320px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 0.9rem;
-      text-decoration: none;
-      color: inherit;
-    }
-    .brand__logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
-      background: linear-gradient(145deg, #2b2b30, #1f1f23);
-      border: 1px solid var(--border-strong);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-      object-fit: contain;
-      flex-shrink: 0;
-      display: block;
-    }
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-    }
-    .brand-title {
-      font-family: var(--font-display);
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      line-height: 1.1;
-      color: #ffc629;
-      background: linear-gradient(135deg, #ffc629 20%, #ff7a1a 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-transform: uppercase;
-    }
-    .brand-subtitle {
-      font-family: var(--font-display);
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      margin-top: 0.15rem;
-    }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .connection-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      background: var(--surface);
-      border: 1px solid var(--border-subtle);
-      padding: 0.4rem 0.85rem;
-      border-radius: 9999px;
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-    }
-    .usuario-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      padding: 0.4rem 0.8rem;
-      border: 1px solid var(--border-subtle);
-      border-radius: 9999px;
-    }
-    .usuario-badge strong { color: var(--text-main); font-weight: 600; }
-    .btn-logout {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: transparent;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 500;
-      padding: 0.4rem 0.8rem;
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      text-decoration: none;
-    }
-    .btn-logout:hover {
-      background: var(--surface);
-      color: var(--text-main);
-      border-color: var(--status-error);
-    }
-    .btn-logout:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-    .btn-logout svg { width: 14px; height: 14px; }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: var(--status-disconnected);
-      flex-shrink: 0;
-      transition: background-color 0.25s ease, box-shadow 0.25s ease;
-    }
-    .status-dot.connecting {
-      background-color: var(--status-connecting);
-      box-shadow: 0 0 8px rgba(255, 198, 41, 0.65);
-      animation: pulse-dot 1.2s infinite ease-in-out;
-    }
-    .status-dot.online {
-      background-color: var(--status-online);
-      box-shadow: 0 0 8px rgba(34, 197, 94, 0.65);
-    }
-    .status-dot.error {
-      background-color: var(--status-error);
-      box-shadow: 0 0 8px rgba(239, 68, 68, 0.65);
-    }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.45; transform: scale(1.15); }
-    }
-    .main-wrap {
-      flex: 1;
-      max-width: 1320px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 3rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2.25rem;
-    }
-    .section-header {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.25rem;
-      margin-bottom: 1.15rem;
-    }
-    .section-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-    .section-title {
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-    .section-title::before {
-      content: "";
-      display: inline-block;
-      width: 4px;
-      height: 16px;
-      border-radius: 2px;
-      background: linear-gradient(180deg, var(--accent), var(--accent-orange));
-    }
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.25rem;
-    }
-    .service-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 1.35rem 1.5rem;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
-      transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      position: relative;
-    }
-    .service-card:hover {
-      background: var(--card-hover);
-      border-color: var(--border-strong);
-    }
-    .service-card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-    .service-identity {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .service-icon-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border-strong);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .service-card.minecraft .service-icon-box {
-      border-color: rgba(255, 198, 41, 0.35);
-    }
-    .service-card.discord .service-icon-box {
-      border-color: rgba(194, 24, 91, 0.35);
-    }
-    .service-names h2 {
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-main);
-      line-height: 1.2;
-    }
-    .service-names p {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      margin-top: 0.2rem;
-    }
-    .service-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-    }
-    .service-state-tag {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: var(--surface);
-      border: 1px solid var(--border-subtle);
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-    }
-    .custom-switch {
-      position: relative;
-      width: 52px;
-      height: 28px;
-      background-color: #333338;
-      border-radius: 9999px;
-      border: 1px solid var(--border-strong);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      padding: 2px;
-      transition: background-color 0.25s ease, border-color 0.25s ease, opacity 0.2s ease;
-      outline: none;
-      flex-shrink: 0;
-    }
-    .custom-switch:focus-visible {
-      box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
-    }
-    .custom-switch .switch-handle {
-      width: 22px;
-      height: 22px;
-      background: #e2e2e7;
-      border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .custom-switch[aria-checked="true"].switch-mc {
-      background: linear-gradient(135deg, #ffc629, #ff7a1a);
-      border-color: #ffc629;
-    }
-    .custom-switch[aria-checked="true"].switch-mc .switch-handle {
-      transform: translateX(24px);
-      background: #1a1a1c;
-    }
-    .custom-switch[aria-checked="true"].switch-dc {
-      background: #c2185b;
-      border-color: #e91e63;
-    }
-    .custom-switch[aria-checked="true"].switch-dc .switch-handle {
-      transform: translateX(24px);
-      background: #ffffff;
-    }
-    .custom-switch.is-loading {
-      cursor: wait;
-      opacity: 0.85;
-    }
-    .switch-spinner {
-      width: 13px;
-      height: 13px;
-      border: 2px solid rgba(0, 0, 0, 0.35);
-      border-top-color: #111113;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: none;
-    }
-    .custom-switch.is-loading .switch-spinner {
-      display: block;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .service-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      padding-top: 0.95rem;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .stat-item {
-      background: var(--surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 0.65rem 0.85rem;
-    }
-    .stat-label {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .stat-val {
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-      letter-spacing: 0.02em;
-    }
-    .tabs-nav {
-      display: flex;
-      gap: 0.35rem;
-      border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: 1.5rem;
-    }
-    .tab-btn {
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--text-secondary);
-      font-family: var(--font-display);
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 0.7rem 1.1rem;
-      cursor: pointer;
-      transition: color 0.15s ease, border-color 0.15s ease;
-    }
-    .tab-btn:hover { color: var(--text-main); }
-    .tab-btn.ativo { color: var(--accent); border-bottom-color: var(--accent); }
-    .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-    .consoles-layout { display: flex; flex-direction: column; gap: 1.25rem; }
-    .console-panel {
-      background: var(--card-bg);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
-    }
-    .console-principal .terminal-body { height: 480px; }
-    .consoles-secundarios { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-    .consoles-secundarios .terminal-body { height: 240px; }
-    .console-header {
-      padding: 0.85rem 1rem;
-      background: #232327;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-    }
-    .console-title-group {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-    }
-    .console-icon-indicator {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-    .c-discord .console-icon-indicator { background: var(--accent-discord); }
-    .c-bot .console-icon-indicator { background: #9d4edd; }
-    .c-mc .console-icon-indicator { background: var(--accent); }
-    .console-title {
-      font-family: var(--font-display);
-      font-size: 0.88rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .console-toolbar {
-      padding: 0.45rem 1rem;
-      background: #1b1b1e;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.73rem;
-      color: var(--text-secondary);
-    }
-    .console-tools-right {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .btn-clear {
-      background: transparent;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      font-size: 0.7rem;
-      font-family: var(--font-body);
-      font-weight: 500;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-    .btn-clear:hover {
-      background: var(--surface);
-      color: var(--text-main);
-      border-color: var(--border-strong);
-    }
-    .btn-clear:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-    .btn-restart {
-      background: transparent;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      font-family: var(--font-body);
-      font-size: 0.72rem;
-      font-weight: 500;
-      padding: 0.35rem 0.7rem;
-      border-radius: 6px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-    }
-    .btn-restart:hover:not(:disabled) {
-      background: var(--surface);
-      color: var(--text-main);
-      border-color: var(--accent);
-    }
-    .btn-restart:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-    .btn-restart:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .btn-restart.girando:disabled {
-      cursor: wait;
-    }
-    .btn-restart svg {
-      width: 13px;
-      height: 13px;
-      flex-shrink: 0;
-    }
-    .btn-restart.girando svg {
-      animation: spin 0.9s linear infinite;
-    }
-    .autoscroll-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      cursor: pointer;
-      user-select: none;
-    }
-    .autoscroll-toggle input[type="checkbox"] {
+      transition: background-color 0.2s ease, color 0.2s ease;
+      overflow-x: hidden;
+    }
+
+    .font-display { font-family: 'Chakra Petch', sans-serif; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+
+    input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 2px;
+    }
+    input[type="checkbox"], input[type="radio"] {
       accent-color: var(--accent);
       cursor: pointer;
     }
-    .terminal-body {
-      background: #111113;
-      padding: 0.85rem 1rem;
-      height: 330px;
-      overflow-y: auto;
-      font-family: var(--font-mono);
-      font-size: 0.76rem;
-      line-height: 1.6;
-      color: var(--text-secondary);
-      scroll-behavior: smooth;
+
+    .app-shell {
+      background: var(--bg-panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-panel);
     }
-    .terminal-body::-webkit-scrollbar {
-      width: 7px;
+    .sidebar-shell {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
     }
-    .terminal-body::-webkit-scrollbar-track {
-      background: #111113;
+    .card-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      transition: border-color 0.18s ease;
     }
-    .terminal-body::-webkit-scrollbar-thumb {
-      background: #2b2b30;
-      border-radius: 4px;
+    .surface-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
     }
-    .terminal-body::-webkit-scrollbar-thumb:hover {
-      background: #3d3d44;
-    }
-    .log-line {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
-      word-break: break-word;
-      padding: 0.08rem 0;
-    }
-    .log-time {
-      color: var(--text-muted);
-      flex-shrink: 0;
-      user-select: none;
-    }
-    .log-level {
-      font-weight: 600;
-      flex-shrink: 0;
-      user-select: none;
-    }
-    .log-level.system { color: #8e8e96; }
-    .log-level.info { color: #38bdf8; }
-    .log-level.success { color: #4ade80; }
-    .log-level.error { color: #f87171; }
-    .log-level.warn { color: #fbbf24; }
-    .log-msg {
-      color: var(--text-secondary);
-      flex: 1;
-    }
-    .log-line.initial .log-msg {
-      color: #6a6a72;
-      font-style: italic;
-    }
-    .console-command-bar {
-      display: flex;
-      gap: 0.5rem;
-      padding: 0.55rem 1rem;
-      background: #1b1b1e;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .console-command-input {
-      flex: 1;
-      min-width: 0;
-      background: #111113;
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 0.74rem;
-      padding: 0.38rem 0.6rem;
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-    .console-command-input:focus {
-      border-color: var(--accent);
-    }
-    .console-command-input::placeholder {
-      color: var(--text-muted);
-    }
-    .console-command-input:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-send-command {
-      background: transparent;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      font-family: var(--font-body);
-      font-size: 0.7rem;
-      font-weight: 500;
-      padding: 0.38rem 0.75rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .btn-send-command:hover:not(:disabled) {
-      background: var(--surface);
-      color: var(--text-main);
-      border-color: var(--accent);
-    }
-    .btn-send-command:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-    .btn-send-command:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .cartao-arquivos {
-      background: var(--card-bg);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 1.35rem 1.5rem;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
-    }
-    .arquivos-topo {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: flex-end;
-      margin-bottom: 1rem;
-    }
-    .campo-inline { display: flex; flex-direction: column; gap: 0.3rem; }
-    .campo-inline span {
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .campo-inline select {
-      background: var(--surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      color: var(--text-main);
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      padding: 0.5rem 0.7rem;
-      outline: none;
-      min-width: 180px;
-    }
-    .campo-inline select:focus { border-color: var(--accent); }
-    .btn-acao {
-      background: transparent;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 500;
-      padding: 0.5rem 0.9rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-    }
-    .btn-acao:hover:not(:disabled) {
-      background: var(--surface);
-      color: var(--text-main);
-      border-color: var(--border-strong);
-    }
-    .btn-acao:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-    .btn-acao:disabled { opacity: 0.5; cursor: wait; }
-    .btn-acao-primario {
-      background: linear-gradient(135deg, #ffc629, #ff7a1a);
-      border: none;
-      color: #111113;
-      font-family: var(--font-display);
+
+    .text-accent { color: var(--accent); }
+    .border-accent { border-color: var(--accent) !important; }
+    .bg-accent-soft { background-color: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: var(--accent-contrast);
       font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      border: 1px solid var(--accent);
+      transition: background-color 0.15s ease, transform 0.1s ease;
     }
-    .btn-acao-primario:hover:not(:disabled) {
-      filter: brightness(1.08);
-      background: linear-gradient(135deg, #ffc629, #ff7a1a);
-      color: #111113;
-    }
-    .btn-acao-perigo { color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); }
-    .btn-acao-perigo:hover:not(:disabled) {
-      background: rgba(239, 68, 68, 0.12);
-      color: #fca5a5;
-      border-color: rgba(239, 68, 68, 0.6);
-    }
-    .aviso-arquivos {
-      font-size: 0.82rem;
-      padding: 0.6rem 0.85rem;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      margin-bottom: 1rem;
-    }
-    .aviso-arquivos.ok {
-      background: rgba(34, 197, 94, 0.12);
-      border-color: rgba(34, 197, 94, 0.4);
-      color: #86efac;
-    }
-    .aviso-arquivos.erro {
-      background: rgba(239, 68, 68, 0.12);
-      border-color: rgba(239, 68, 68, 0.4);
-      color: #fca5a5;
-    }
-    .breadcrumb {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.2rem;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      margin-bottom: 1rem;
-    }
-    .breadcrumb button {
-      background: none;
-      border: none;
-      color: var(--accent);
-      cursor: pointer;
-      font-size: inherit;
-      font-family: inherit;
-      padding: 0.15rem 0.35rem;
-      border-radius: 4px;
-    }
-    .breadcrumb button:hover { background: var(--surface); }
-    .breadcrumb .sep { color: var(--text-muted); }
-    .tabela-wrap { overflow-x: auto; }
-    .tabela-arquivos { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .tabela-arquivos th {
-      text-align: left;
-      font-size: 0.7rem;
+    .btn-primary:hover:not(:disabled) { background-color: var(--accent-hover); }
+    .btn-primary:active:not(:disabled) { transform: translateY(1px); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
       font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      padding: 0 0.6rem 0.7rem;
-      border-bottom: 1px solid var(--border-subtle);
+      transition: border-color 0.15s ease, color 0.15s ease;
     }
-    .tabela-arquivos td {
-      padding: 0.6rem;
-      border-bottom: 1px solid rgba(51, 51, 56, 0.6);
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.42);
+      font-weight: 700;
+      transition: all 0.15s ease;
+    }
+    .btn-danger:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.24);
+      border-color: #ef4444;
+      color: #fecaca;
+    }
+    .btn-danger:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.75rem;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .nav-item.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+
+    .subtab-btn {
+      padding: 0.55rem 1rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+    }
+    .subtab-btn:hover { color: var(--accent); }
+    .subtab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ==========================================================================
+       CORREÇÃO DAS TABELAS: LINHA DE HOVER CONTÍNUA E COLUNA AÇÕES ALINHADA
+       ========================================================================== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+      font-size: 0.83rem;
+    }
+    .data-table th {
+      text-align: left;
+      font-size: 0.69rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      user-select: none;
       vertical-align: middle;
     }
-    .tabela-arquivos tr:last-child td { border-bottom: none; }
-    .arquivo-nome {
+    .data-table th.sortable { cursor: pointer; transition: color 0.15s ease; }
+    .data-table th.sortable:hover { color: var(--accent); }
+
+    .data-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+      transition: background-color 0.12s ease, border-color 0.12s ease;
+    }
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Hover contínuo sem quebra na primeira coluna */
+    .data-table tbody tr:hover td {
+      background-color: rgba(240, 166, 43, 0.07);
+    }
+    .data-table tbody tr.selected-row td {
+      background-color: var(--accent-soft);
+    }
+
+    /* Coluna de Ações: O primeiro botão começa exatamente embaixo da palavra AÇÕES */
+    .data-table th.col-actions,
+    .data-table td.col-actions {
+      text-align: left;
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    .action-cell-fixed {
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .btn-table-action {
+      height: 28px;
+      padding: 0 0.65rem;
+      border-radius: 0.5rem;
+      font-size: 0.73rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      line-height: 1;
+    }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 9999px; display: inline-block; flex-shrink: 0; }
+    .status-dot.online { background-color: var(--status-ok); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
+    .status-dot.starting, .status-dot.stopping { background-color: var(--status-warn); box-shadow: 0 0 8px rgba(234, 179, 8, 0.6); animation: pulse 1.2s infinite; }
+    .status-dot.offline { background-color: #71717a; }
+    .status-dot.error { background-color: var(--status-danger); box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @media (prefers-reduced-motion: reduce) {
+      .status-dot.starting, .status-dot.stopping, .pulse-attention { animation: none !important; }
+    }
+
+    @keyframes attentionPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); box-shadow: 0 0 22px rgba(240, 166, 43, 0.45); }
+    }
+    .pulse-attention { animation: attentionPulse 0.45s ease-in-out 2; }
+
+    .skeleton-line {
+      height: 14px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .terminal-viewport {
+      background: var(--bg-terminal);
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 20px;
+      overflow-y: auto;
+      position: relative;
+      user-select: text;
+    }
+    /* Scrollbars globais em harmonia com os temas */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #27272a var(--bg-surface);
+    }
+    html[data-theme="light"] * {
+      scrollbar-color: #d4d4d8 var(--bg-surface);
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-surface);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 9999px;
+      border: 2px solid var(--bg-surface);
+    }
+    html[data-theme="light"] ::-webkit-scrollbar-thumb {
+      background: #d4d4d8;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+    .log-row {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: var(--text-main);
-      background: none;
-      border: none;
-      font-family: inherit;
-      font-size: inherit;
-      cursor: pointer;
-      padding: 0.15rem 0.3rem;
-      border-radius: 4px;
-      text-align: left;
-    }
-    .arquivo-nome:hover { background: var(--surface); }
-    .arquivo-nome.pasta { color: var(--accent); font-weight: 600; }
-    .arquivo-acoes { display: flex; gap: 0.35rem; justify-content: flex-end; flex-wrap: wrap; }
-    .arquivo-acoes .btn-acao { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
-    .vazio { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1.5rem 0; }
-    .modal-fundo {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.72);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      z-index: 200;
-    }
-    .modal-caixa {
-      background: var(--card-bg);
-      border: 1px solid var(--border-strong);
-      border-radius: 14px;
-      width: 100%;
-      max-width: 900px;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .modal-topo {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 0.9rem 1.1rem;
-      border-bottom: 1px solid var(--border-subtle);
-      background: #232327;
-    }
-    .modal-titulo {
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      color: var(--text-main);
+      padding: 0 0.85rem;
+      height: 20px;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
-    .modal-acoes { display: flex; gap: 0.5rem; flex-shrink: 0; }
-    .modal-editor {
-      flex: 1;
-      min-height: 420px;
-      background: #111113;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      line-height: 1.6;
-      border: none;
-      padding: 1rem;
-      resize: none;
-      outline: none;
-      tab-size: 2;
-    }
-    .app-footer {
-      border-top: 1px solid var(--border-subtle);
-      padding: 1.2rem 1.5rem;
-      text-align: center;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      background: rgba(26, 26, 28, 0.6);
-    }
-    .app-footer span {
-      color: var(--text-secondary);
-    }
-    @media (max-width: 1024px) {
-      .terminal-body {
-        height: 250px;
-      }
-    }
-    @media (max-width: 900px) {
-      .consoles-secundarios { grid-template-columns: 1fr; }
-      .console-principal .terminal-body { height: 320px; }
-    }
-    @media (max-width: 768px) {
-      .services-grid {
-        grid-template-columns: 1fr;
-      }
-      .app-header {
-        padding: 0.75rem 1rem;
-      }
-      .brand-subtitle {
-        display: none;
-      }
-      .brand-title {
-        font-size: 1.15rem;
-      }
-      .brand__logo {
-        width: 44px;
-        height: 44px;
-      }
-      .main-wrap {
-        padding: 1.25rem 1rem 2rem 1rem;
-        gap: 1.5rem;
-      }
-      .service-card-top {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .service-controls {
-        justify-content: space-between;
-        width: 100%;
-        margin-top: 0.25rem;
-        flex-wrap: wrap;
-      }
-      .btn-logout span { display: none; }
-      .usuario-badge { display: none; }
+    .log-row:hover { background: rgba(240, 166, 43, 0.08); }
+    .log-seq { color: #646470; font-size: 0.66rem; min-width: 46px; user-select: none; }
+    .log-time { color: #8e8e99; user-select: none; }
+    .log-lvl { font-weight: 700; min-width: 58px; user-select: none; }
+    .log-lvl.INFO { color: var(--status-info); }
+    .log-lvl.WARN { color: var(--status-warn); }
+    .log-lvl.ERROR { color: var(--status-danger); }
+    .log-lvl.SYSTEM { color: var(--accent); }
+    .log-lvl.SUCCESS { color: var(--status-ok); }
+
+    .progress-track { height: 6px; border-radius: 9999px; background: var(--bg-surface); overflow: hidden; }
+    .progress-fill { height: 100%; background-color: var(--accent); transition: width 0.3s ease; }
+
+    .drawer-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 60; }
+    .drawer-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 100%;
+      max-width: 480px;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -20px 0 50px rgba(0, 0, 0, 0.65);
+      z-index: 70;
+      display: flex;
+      flex-direction: column;
     }
   </style>
 </head>
-<body>
-  <header class="app-header">
-    <div class="header-content">
-      <div class="brand-group">
-        <img class="brand__logo" src="assets/logo.png" alt="Logo Monkey's Craft" />
-        <div class="brand-text">
-          <h1 class="brand-title">MONKEY'S CRAFT</h1>
-          <span class="brand-subtitle">PAINEL DE CONTROLE</span>
+<body class="min-h-screen flex p-0 m-0 select-none">
+
+  <!-- CONTAINER PRINCIPAL -->
+  <div class="w-full h-screen app-shell rounded-none flex overflow-hidden relative">
+
+    <!-- ======================================================================= -->
+    <!-- SIDEBAR FIXA                                                            -->
+    <!-- ======================================================================= -->
+    <aside class="w-64 sidebar-shell flex flex-col justify-between p-5 shrink-0">
+      <div>
+        <div class="flex items-center gap-3 pb-5 mb-4 border-b border-white/5">
+          <div class="w-11 h-11 rounded-xl surface-box p-1 flex items-center justify-center shrink-0 border border-accent">
+            <img
+              src="assets/logo.png"
+              alt="Monkey's Craft"
+              class="w-full h-full object-contain rounded-lg"
+              onerror="this.onerror=null; this.replaceWith(criarFallbackLogo('MC'));"
+            />
+          </div>
+          <div>
+            <h1 class="font-display font-bold text-lg tracking-wider uppercase text-accent leading-none">
+              Monkey's Craft
+            </h1>
+            <span class="text-[10px] font-bold tracking-widest uppercase text-secondary block mt-1">
+              Painel de Controle
+            </span>
+          </div>
+        </div>
+
+        <nav class="space-y-1.5" id="sidebarNav">
+          <button type="button" class="nav-item active" data-view="dashboard">
+            <i data-lucide="terminal-square" class="w-4 h-4"></i>
+            <span>Visão Geral & Consoles</span>
+          </button>
+          <button type="button" class="nav-item" data-view="jogadores">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Jogadores</span>
+          </button>
+          <button type="button" class="nav-item" data-view="faccoes">
+            <i data-lucide="swords" class="w-4 h-4"></i>
+            <span>Facções & Raids</span>
+          </button>
+          <button type="button" class="nav-item" data-view="mods">
+            <i data-lucide="cpu" class="w-4 h-4"></i>
+            <span>Mods & Eras</span>
+            <span id="navBadgePendingMods" class="ml-auto px-1.5 py-0.5 rounded text-[10px] font-bold bg-accent-soft" hidden></span>
+          </button>
+          <button type="button" class="nav-item" data-view="arquivos">
+            <i data-lucide="folder-code" class="w-4 h-4"></i>
+            <span>Arquivos</span>
+          </button>
+          <button type="button" class="nav-item" data-view="backups">
+            <i data-lucide="database-backup" class="w-4 h-4"></i>
+            <span>Backups</span>
+          </button>
+          <button type="button" class="nav-item" data-view="configuracoes">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            <span>Configurações & Contas</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- RODAPÉ INFERIOR ESQUERDO -->
+      <div class="pt-4 border-t border-white/5">
+        <div class="p-3 rounded-xl surface-box flex items-center justify-between gap-2">
+          <div class="flex items-center gap-3 min-w-0">
+            <img
+              id="sidebarFooterAvatar"
+              src="https://mc-heads.net/avatar/Artzz/64"
+              alt="Skin Avatar"
+              class="w-10 h-10 rounded-lg object-cover border border-accent shrink-0"
+            />
+            <div class="min-w-0 leading-tight">
+              <p class="text-sm font-bold truncate" id="footerMcNick">Artzz</p>
+              <p class="text-xs text-accent font-semibold lowercase truncate mt-0.5" id="footerPanelRole">admin</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onclick="executarLogoutReal()"
+            title="Sair da conta"
+            class="btn-danger px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1 shrink-0">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span>Sair</span>
+          </button>
         </div>
       </div>
-      <div class="header-actions">
-        <span class="usuario-badge" id="usuarioBadge" hidden>
-          <strong id="nomeUsuario"></strong>
-          <span id="cargoUsuario"></span>
-        </span>
-        <div class="connection-badge" id="panelConnectionBadge" role="status" aria-live="polite">
-          <span class="status-dot" id="panelConnectionDot"></span>
-          <span id="panelConnectionText">Aguardando conexão...</span>
+    </aside>
+
+    <!-- ======================================================================= -->
+    <!-- ÁREA DE CONTEÚDO PRINCIPAL                                              -->
+    <!-- ======================================================================= -->
+    <main class="flex-1 flex flex-col overflow-y-auto p-6 lg:p-8 space-y-5">
+
+      <!-- TOPO GLOBAL -->
+      <header class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/5">
+        <div>
+          <h2 class="text-2xl font-extrabold tracking-tight" id="viewHeaderTitle">Visão Geral & Consoles</h2>
+          <p class="text-xs text-secondary mt-0.5" id="viewHeaderSubtitle">
+            Monitoramento unificado e controle de ciclo de vida do servidor Minecraft e Bot Discord
+          </p>
         </div>
-        <a class="btn-logout" id="linkAdmin" href="/admin.html" hidden>Usuários</a>
-        <button type="button" class="btn-logout" id="btnLogout" title="Sair do painel">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-          <span>Sair</span>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          
+
+          <button
+            type="button"
+            onclick="abrirCommandPalette()"
+            class="btn-secondary px-3 py-1.5 rounded-xl text-xs flex items-center gap-2"
+            title="Busca rápida de navegação e ações (Ctrl+K)">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-accent"></i>
+            <span>Buscar ação...</span>
+            <kbd class="px-1.5 py-0.5 text-[10px] font-mono-code rounded bg-black/40 border border-white/10">Ctrl+K</kbd>
+          </button>
+
+          <div
+            class="px-3 py-1.5 rounded-xl surface-box text-xs font-medium flex items-center gap-2 cursor-help"
+            title="Canal de telemetria em tempo real (WebSocket). Verifica a saúde do servidor a cada 5 segundos.">
+            <span class="status-dot online" id="agentHeartbeatDot"></span>
+            <span id="agentHeartbeatLabel">Tempo Real: Conectado</span>
+          </div>
+
+          <button
+            type="button"
+            onclick="toggleTheme()"
+            class="btn-secondary px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-2">
+            <i data-lucide="sun-moon" class="w-4 h-4 text-accent"></i>
+            <span id="themeToggleLabel">Modo Escuro</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- BANNER DE DESCONEXÃO WEBSOCKET -->
+      <div id="staleDataBanner" class="card-box p-3.5 border border-yellow-500/50 bg-yellow-500/10 flex flex-wrap items-center justify-between gap-3" hidden>
+        <div class="flex items-center gap-2.5 text-xs">
+          <i data-lucide="wifi-off" class="w-4 h-4 text-yellow-400 shrink-0"></i>
+          <span>
+            <strong class="text-yellow-300">Conexão em tempo real interrompida:</strong> Exibindo dados da última leitura válida (<span id="lastValidReadTimestamp" class="font-mono-code">agora</span>). Tentando reconectar automaticamente...
+          </span>
+        </div>
+        <button type="button" onclick="conectarWebSocketReal()" class="btn-secondary px-3 py-1 rounded-lg text-xs">
+          Reconectar Agora
         </button>
       </div>
-    </div>
-  </header>
-  <main class="main-wrap">
-    <section aria-labelledby="sec-servicos-title">
-      <div class="section-header">
-        <h2 id="sec-servicos-title" class="section-title">Serviços</h2>
-        <p class="section-subtitle">Gerencie e monitore seus serviços em tempo real.</p>
-      </div>
-      <div class="services-grid">
-        <article class="service-card minecraft" id="service-card-minecraft">
-          <div class="service-card-top">
-            <div class="service-identity">
-              <div class="service-icon-box" aria-hidden="true">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <polygon points="12,2 22,7.5 12,13 2,7.5" fill="#ffc629"/>
-                  <polygon points="2,7.5 12,13 12,22 2,16.5" fill="#6b4226"/>
-                  <polygon points="2,7.5 12,13 12,15 2,9.5" fill="#ff7a1a"/>
-                  <polygon points="12,13 22,7.5 22,16.5 12,22" fill="#52321c"/>
-                  <polygon points="12,13 22,7.5 22,9.5 12,15" fill="#e06914"/>
-                </svg>
-              </div>
-              <div class="service-names">
-                <h2>Monkey's Craft</h2>
-                <p>Servidor de Minecraft</p>
-              </div>
-            </div>
-            <div class="service-controls">
-              <div class="service-state-tag" id="status-tag-minecraft">
-                <span class="status-dot" id="dot-minecraft"></span>
-                <span id="label-minecraft">Desconectado</span>
-              </div>
-              <button
-                type="button"
-                class="btn-restart"
-                id="restart-minecraft"
-                data-cargo="admin"
-                title="Reiniciar servidor"
-                aria-label="Reiniciar servidor de Minecraft"
-                disabled
-                onclick="reiniciarServico('minecraft')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
-                  <polyline points="21 3 21 9 15 9"></polyline>
-                </svg>
-                <span>Reiniciar</span>
-              </button>
-              <button
-                type="button"
-                class="custom-switch switch-mc"
-                id="toggle-minecraft"
-                data-cargo="admin"
-                role="switch"
-                aria-checked="false"
-                aria-label="Ligar servidor de Minecraft"
-                onclick="toggleServerStatus('minecraft')">
-                <span class="switch-handle">
-                  <span class="switch-spinner"></span>
-                </span>
-              </button>
-            </div>
+
+      <!-- BANNER GLOBAL DE ALTERAÇÕES PENDENTES -->
+      <div id="globalPendingBanner" class="card-box p-4 border-accent bg-accent-soft flex flex-wrap items-center justify-between gap-4" hidden>
+        <div class="flex items-start gap-3">
+          <i data-lucide="layers" class="w-5 h-5 text-accent shrink-0 mt-0.5"></i>
+          <div>
+            <p class="text-xs font-bold text-main">
+              <span id="pendingCountText">1</span> alteração(ões) aguardando reinício controlado do servidor:
+            </p>
+            <p class="text-xs text-accent font-mono-code mt-0.5" id="pendingOriginsList"></p>
           </div>
-          <div class="service-stats">
-            <div class="stat-item">
-              <div class="stat-label">Jogadores</div>
-              <div class="stat-val" id="mc-stat-players">--/--</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">Versão</div>
-              <div class="stat-val" id="mc-stat-version">--</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">Latência</div>
-              <div class="stat-val" id="mc-stat-ping">-- ms</div>
-            </div>
-          </div>
-        </article>
-        <article class="service-card discord" id="service-card-discord">
-          <div class="service-card-top">
-            <div class="service-identity">
-              <div class="service-icon-box" aria-hidden="true">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="#c2185b" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-                </svg>
-              </div>
-              <div class="service-names">
-                <h2>Bot do Discord</h2>
-                <p>Automação e moderação</p>
-              </div>
-            </div>
-            <div class="service-controls">
-              <div class="service-state-tag" id="status-tag-discord">
-                <span class="status-dot" id="dot-discord"></span>
-                <span id="label-discord">Desconectado</span>
-              </div>
-              <button
-                type="button"
-                class="btn-restart"
-                id="restart-discord"
-                data-cargo="admin"
-                title="Reiniciar bot"
-                aria-label="Reiniciar bot do Discord"
-                disabled
-                onclick="reiniciarServico('discord')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
-                  <polyline points="21 3 21 9 15 9"></polyline>
-                </svg>
-                <span>Reiniciar</span>
-              </button>
-              <button
-                type="button"
-                class="custom-switch switch-dc"
-                id="toggle-discord"
-                data-cargo="admin"
-                role="switch"
-                aria-checked="false"
-                aria-label="Ligar bot do Discord"
-                onclick="toggleServerStatus('discord')">
-                <span class="switch-handle">
-                  <span class="switch-spinner"></span>
-                </span>
-              </button>
-            </div>
-          </div>
-          <div class="service-stats">
-            <div class="stat-item">
-              <div class="stat-label">Servidores</div>
-              <div class="stat-val" id="dc-stat-guilds">--</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">Comandos</div>
-              <div class="stat-val" id="dc-stat-commands">--</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">Latência</div>
-              <div class="stat-val" id="dc-stat-ping">-- ms</div>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-    <section aria-labelledby="sec-area-title">
-      <div class="section-header">
-        <h2 id="sec-area-title" class="section-title">Área de trabalho</h2>
-      </div>
-
-      <div class="tabs-nav" role="tablist">
-        <button type="button" class="tab-btn ativo" data-aba="consoles" role="tab" aria-selected="true">Consoles</button>
-        <button type="button" class="tab-btn" data-aba="arquivos" role="tab" aria-selected="false" data-cargo="admin">Arquivos</button>
-      </div>
-
-      <div class="tab-painel" id="aba-consoles">
-        <div class="consoles-layout">
-
-          <div class="console-panel c-mc console-principal" id="panel-minecraft">
-            <div class="console-header">
-              <div class="console-title-group">
-                <span class="console-icon-indicator"></span>
-                <span class="console-title">Console do Servidor de Minecraft</span>
-              </div>
-              <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
-            </div>
-            <div class="console-toolbar">
-              <span>Logs do servidor</span>
-              <div class="console-tools-right">
-                <label class="autoscroll-toggle">
-                  <input type="checkbox" id="autoscroll-minecraft" checked>
-                  <span>Auto-scroll</span>
-                </label>
-                <button type="button" class="btn-clear" onclick="clearConsole('minecraft')" title="Limpar terminal">Limpar</button>
-              </div>
-            </div>
-            <div class="terminal-body" id="console-minecraft" role="log" aria-live="polite">
-              <div class="log-line initial">
-                <span class="log-level system">[SISTEMA]</span>
-                <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
-              </div>
-            </div>
-            <div class="console-command-bar" data-cargo="admin moderador">
-              <input type="text" class="console-command-input" id="mc-command-input" placeholder="Digite um comando (ex: list, say olá)" autocomplete="off" spellcheck="false" disabled>
-              <button type="button" class="btn-send-command" id="mc-command-send" onclick="enviarComandoMinecraft()" disabled>Enviar</button>
-            </div>
-          </div>
-
-          <div class="consoles-secundarios">
-
-            <div class="console-panel c-discord" id="panel-discord-events">
-              <div class="console-header">
-                <div class="console-title-group">
-                  <span class="console-icon-indicator"></span>
-                  <span class="console-title">Console do Discord</span>
-                </div>
-                <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
-              </div>
-              <div class="console-toolbar">
-                <span>Eventos do servidor Discord</span>
-                <div class="console-tools-right">
-                  <label class="autoscroll-toggle">
-                    <input type="checkbox" id="autoscroll-discord-events" checked>
-                    <span>Auto-scroll</span>
-                  </label>
-                  <button type="button" class="btn-clear" onclick="clearConsole('discord-events')" title="Limpar terminal">Limpar</button>
-                </div>
-              </div>
-              <div class="terminal-body" id="console-discord-events" role="log" aria-live="polite">
-                <div class="log-line initial">
-                  <span class="log-level system">[SISTEMA]</span>
-                  <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="console-panel c-bot" id="panel-discord-bot">
-              <div class="console-header">
-                <div class="console-title-group">
-                  <span class="console-icon-indicator"></span>
-                  <span class="console-title">Console do Bot do Discord</span>
-                </div>
-                <span class="status-dot" title="Aguardando conexão" aria-hidden="true"></span>
-              </div>
-              <div class="console-toolbar">
-                <span>Runtime do bot</span>
-                <div class="console-tools-right">
-                  <label class="autoscroll-toggle">
-                    <input type="checkbox" id="autoscroll-discord-bot" checked>
-                    <span>Auto-scroll</span>
-                  </label>
-                  <button type="button" class="btn-clear" onclick="clearConsole('discord-bot')" title="Limpar terminal">Limpar</button>
-                </div>
-              </div>
-              <div class="terminal-body" id="console-discord-bot" role="log" aria-live="polite">
-                <div class="log-line initial">
-                  <span class="log-level system">[SISTEMA]</span>
-                  <span class="log-msg">Aguardando conexão com a fonte de dados...</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="descartarAlteracoesPendentes()" class="btn-secondary px-3 py-1.5 rounded-lg text-xs">
+            Descartar Tudo
+          </button>
+          <button type="button" onclick="abrirModalPlanoReinicio()" class="btn-primary px-4 py-1.5 rounded-lg text-xs font-display uppercase tracking-wider">
+            Revisar Plano & Aplicar (60s)
+          </button>
         </div>
       </div>
 
-      <div class="tab-painel" id="aba-arquivos" hidden>
-        <div class="cartao-arquivos">
-          <div class="arquivos-topo">
-            <label class="campo-inline">
-              <span>Área</span>
-              <select id="arquivosArea"></select>
-            </label>
-            <button type="button" class="btn-acao" id="arquivosAtualizar">Atualizar</button>
-            <button type="button" class="btn-acao" id="arquivosNovaPasta">Nova pasta</button>
-            <button type="button" class="btn-acao btn-acao-primario" id="arquivosEnviar">Enviar arquivos</button>
-            <input type="file" id="arquivosInput" multiple hidden>
+      <!-- ===================================================================== -->
+      <!-- ABA 1: DASHBOARD & CONSOLES UNIFICADOS                                -->
+      <!-- ===================================================================== -->
+      <section id="view-dashboard" class="space-y-6">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="card-box p-4 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Jogadores Online</span>
+              <div class="text-2xl font-extrabold mt-1" id="kpi-players">142 / 200</div>
+              <span class="text-[11px] text-emerald-400 font-semibold" id="kpi-players-sub">71% da capacidade ativa</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-accent-soft flex items-center justify-center">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
           </div>
 
-          <p class="aviso-arquivos" id="arquivosAviso" hidden></p>
+          <div class="card-box p-4 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Era de Progressão</span>
+              <div class="text-xl font-extrabold mt-1 text-accent" id="kpi-era">Era II · Mekanism</div>
+              <span class="text-[11px] text-secondary">Create + Automação Industrial</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-accent-soft flex items-center justify-center">
+              <i data-lucide="cpu" class="w-5 h-5"></i>
+            </div>
+          </div>
 
-          <nav class="breadcrumb" id="arquivosBreadcrumb"></nav>
+          <div class="card-box p-4 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Estado de Raids</span>
+              <div class="text-xl font-extrabold mt-1 text-emerald-400" id="kpi-raid-state">Escudos Ativos</div>
+              <span class="text-[11px] text-secondary" id="kpi-raid-sub">Próxima janela: Sáb 20:00</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+          </div>
 
-          <div class="tabela-wrap">
-            <table class="tabela-arquivos">
+          <div class="card-box p-4 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">TPS / Saúde</span>
+              <div class="text-2xl font-extrabold mt-1" id="kpi-tps-card">
+                <span id="kpi-tps-value" class="text-emerald-400">20.0</span> <span class="text-xs font-semibold text-emerald-400">TPS</span>
+              </div>
+              <span class="text-[11px] text-secondary">Último backup verificado</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-accent-soft flex items-center justify-center">
+              <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-6">
+
+          <!-- CARD 1: SERVIDOR MINECRAFT (520px) -->
+          <article class="card-box overflow-hidden flex flex-col" id="unified-card-minecraft">
+            <div class="px-5 py-3.5 surface-box border-b border-white/5 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-accent-soft flex items-center justify-center font-display font-bold text-sm">
+                  MC
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-display font-bold text-base tracking-wide uppercase">Servidor Minecraft</h3>
+                    <span class="text-xs font-mono-code px-2 py-0.5 rounded surface-box" id="mc-version-badge">Forge 1.20.1</span>
+                    <span
+                      class="text-xs text-secondary cursor-help inline-flex items-center gap-1"
+                      title="Buffer local de 5.000 linhas com retenção de 20.000 linhas no servidor. Sequência atual garante zero perda na reconexão.">
+                      <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                      <span class="font-mono-code text-[11px]">Evento #<span id="mc-last-seq">1048</span></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="px-3 py-1 rounded-full surface-box text-xs font-bold flex items-center gap-2" id="mc-status-pill">
+                  <span class="status-dot online" id="mc-status-dot"></span>
+                  <span id="mc-status-text">Online</span>
+                </div>
+
+                <button type="button" id="btn-mc-start" onclick="controlarCicloVida('minecraft', 'start')" class="btn-secondary px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5" disabled>
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i> Iniciar
+                </button>
+                <button type="button" id="btn-mc-restart" onclick="controlarCicloVida('minecraft', 'restart')" class="btn-secondary px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+                  <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Reiniciar
+                </button>
+                <button type="button" id="btn-mc-stop" onclick="confirmarParadaServidor('minecraft')" class="btn-danger px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+                  <i data-lucide="square" class="w-3.5 h-3.5"></i> Parar
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2 px-5 py-2.5 bg-black/20 border-b border-white/5 text-xs">
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">Jogadores</span>
+                <span class="font-mono-code font-bold" id="mc-metric-players">142 / 200</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg" title="Verde: ≥19 TPS | Alerta: <19 TPS | Crítico: <15 TPS">
+                <span class="text-[10px] uppercase text-secondary block">TPS (1m / 5m / 15m)</span>
+                <span class="font-mono-code font-bold text-emerald-400" id="mc-metric-tps">20.0 / 19.9 / 20.0</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg" title="Milissegundos por Tick (Ideal: abaixo de 40ms)">
+                <span class="text-[10px] uppercase text-secondary block">MSPT</span>
+                <span class="font-mono-code font-bold text-emerald-400" id="mc-metric-mspt">14.2 ms</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">RAM (JVM)</span>
+                <span class="font-mono-code font-bold" id="mc-metric-ram">10.4 / 16.0 GB</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">CPU Processo</span>
+                <span class="font-mono-code font-bold" id="mc-metric-cpu">38.4%</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">Entidades</span>
+                <span class="font-mono-code font-bold" id="mc-metric-entities">1.240</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">Chunks Carregados</span>
+                <span class="font-mono-code font-bold" id="mc-metric-chunks">684</span>
+              </div>
+            </div>
+
+            <div class="px-5 py-2 surface-box border-b border-white/5 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="mc-log-level-filter" onchange="renderizarConsoleVirtual('minecraft')" class="bg-black/30 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none">
+                  <option value="ALL">Nível: Todos</option>
+                  <option value="INFO">Apenas INFO</option>
+                  <option value="WARN">Apenas WARN</option>
+                  <option value="ERROR">Apenas ERROR</option>
+                  <option value="SYSTEM">Apenas SYSTEM</option>
+                </select>
+                <div class="flex items-center gap-1.5 bg-black/30 border border-white/10 rounded-lg px-2.5 py-1 w-64">
+                  <i data-lucide="search" class="w-3.5 h-3.5 text-secondary"></i>
+                  <input
+                    type="text"
+                    id="mc-log-search"
+                    oninput="renderizarConsoleVirtual('minecraft')"
+                    placeholder="Filtrar texto no console..."
+                    class="bg-transparent text-xs outline-none w-full font-mono-code"
+                  />
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="executarAtalhoConsole('list')" class="btn-secondary px-2 py-1 rounded text-[11px] font-mono-code">/list</button>
+                <button type="button" onclick="executarAtalhoConsole('save-all')" class="btn-secondary px-2 py-1 rounded text-[11px] font-mono-code">/save-all</button>
+                <button type="button" onclick="executarAtalhoConsole('forge tps')" class="btn-secondary px-2 py-1 rounded text-[11px] font-mono-code">/forge tps</button>
+                <span id="mc-autoscroll-badge" onclick="retomarAutoScroll('minecraft')" class="px-2 py-1 rounded text-[11px] font-bold bg-accent-soft cursor-pointer">
+                  Auto-scroll: Ativo
+                </span>
+                <button type="button" onclick="limparBufferConsole('minecraft')" class="btn-secondary px-2.5 py-1 rounded text-[11px]">
+                  Limpar
+                </button>
+              </div>
+            </div>
+
+            <div class="terminal-viewport h-[520px]" id="viewport-minecraft" role="log" aria-live="polite" onscroll="verificarScrollUsuario('minecraft')">
+              <div id="phantom-minecraft" class="w-full relative"></div>
+              <div id="content-minecraft" class="w-full absolute top-0 left-0"></div>
+            </div>
+
+            <div class="p-3 surface-box border-t border-white/5 flex items-center gap-2">
+              <span class="font-mono-code text-xs text-accent font-bold pl-2">&gt;</span>
+              <input
+                type="text"
+                id="mc-command-input"
+                placeholder="Digite um comando (use ↑ e ↓ para navegar no histórico de comandos enviados)..."
+                autocomplete="off"
+                spellcheck="false"
+                class="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs font-mono-code text-white outline-none"
+              />
+              <button
+                type="button"
+                id="mc-command-send"
+                onclick="enviarComandoMinecraft()"
+                class="btn-primary px-4 py-2 rounded-lg text-xs font-display uppercase tracking-wider">
+                Enviar Comando
+              </button>
+            </div>
+          </article>
+
+          <!-- CARD 2: BOT DO DISCORD (520px) -->
+          <article class="card-box overflow-hidden flex flex-col" id="unified-card-discord">
+            <div class="px-5 py-3 surface-box border-b border-white/5 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-accent-soft flex items-center justify-center font-display font-bold text-sm">
+                  BOT
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-display font-bold text-base tracking-wide uppercase">Bot do Discord</h3>
+                    <span class="text-xs font-mono-code px-2 py-0.5 rounded surface-box">discord.js v14</span>
+                    <span
+                      class="text-xs text-secondary cursor-help inline-flex items-center gap-1"
+                      title="Logs de eventos e runtime do bot Discord.">
+                      <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                      <span class="font-mono-code text-[11px]">Evento #<span id="bot-last-seq">312</span></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="px-3 py-1 rounded-full surface-box text-xs font-bold flex items-center gap-2" id="bot-status-pill">
+                  <span class="status-dot online" id="bot-status-dot"></span>
+                  <span id="bot-status-text">Online</span>
+                </div>
+
+                <button type="button" id="btn-bot-start" onclick="controlarCicloVida('discord', 'start')" class="btn-secondary px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5" disabled>
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i> Iniciar
+                </button>
+                <button type="button" id="btn-bot-restart" onclick="controlarCicloVida('discord', 'restart')" class="btn-secondary px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+                  <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Reiniciar
+                </button>
+                <button type="button" id="btn-bot-stop" onclick="controlarCicloVida('discord', 'stop')" class="btn-danger px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+                  <i data-lucide="square" class="w-3.5 h-3.5"></i> Parar
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 px-5 py-2.5 bg-black/20 border-b border-white/5 text-xs">
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">Conexão Gateway</span>
+                <span class="font-mono-code font-bold text-emerald-400" id="bot-metric-gateway">Conectado (Shard 0)</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">Latência WebSocket</span>
+                <span class="font-mono-code font-bold text-emerald-400" id="bot-metric-ping">42 ms</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">Servidores Conectados</span>
+                <span class="font-mono-code font-bold" id="bot-metric-guilds">1 (Monkey's Craft)</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">Comandos / Minuto</span>
+                <span class="font-mono-code font-bold" id="bot-metric-cpm">18 cmd/min</span>
+              </div>
+              <div class="surface-box px-3 py-1.5 rounded-lg">
+                <span class="text-[10px] uppercase text-secondary block">Tempo Ativo (Uptime)</span>
+                <span class="font-mono-code font-bold" id="bot-metric-uptime">14d 06h 22m</span>
+              </div>
+            </div>
+
+            <div class="px-5 py-2 surface-box border-b border-white/5 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <select id="bot-log-level-filter" onchange="renderizarConsoleVirtual('discord')" class="bg-black/30 border border-white/10 rounded-lg px-2.5 py-1 text-xs outline-none">
+                  <option value="ALL">Nível: Todos</option>
+                  <option value="INFO">Apenas INFO</option>
+                  <option value="WARN">Apenas WARN</option>
+                  <option value="ERROR">Apenas ERROR</option>
+                </select>
+                <div class="flex items-center gap-1.5 bg-black/30 border border-white/10 rounded-lg px-2.5 py-1 w-56">
+                  <i data-lucide="search" class="w-3.5 h-3.5 text-secondary"></i>
+                  <input
+                    type="text"
+                    id="bot-log-search"
+                    oninput="renderizarConsoleVirtual('discord')"
+                    placeholder="Buscar evento do bot..."
+                    class="bg-transparent text-xs outline-none w-full font-mono-code"
+                  />
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="bot-autoscroll-badge" onclick="retomarAutoScroll('discord')" class="px-2 py-1 rounded text-[11px] font-bold bg-accent-soft cursor-pointer">
+                  Auto-scroll: Ativo
+                </span>
+                <button type="button" onclick="limparBufferConsole('discord')" class="btn-secondary px-2.5 py-1 rounded text-[11px]">
+                  Limpar
+                </button>
+              </div>
+            </div>
+
+            <div class="terminal-viewport h-[520px]" id="viewport-discord" role="log" aria-live="polite" onscroll="verificarScrollUsuario('discord')">
+              <div id="phantom-discord" class="w-full relative"></div>
+              <div id="content-discord" class="w-full absolute top-0 left-0"></div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 2: JOGADORES (Linha Contínua Corrigida + Ações Alinhadas)         -->
+      <!-- ===================================================================== -->
+      <section id="view-jogadores" class="space-y-5" hidden>
+        <div class="card-box p-5">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="surface-box rounded-xl px-3.5 py-2 flex items-center gap-2 w-72">
+                <i data-lucide="search" class="w-4 h-4 text-secondary"></i>
+                <input
+                  type="text"
+                  id="playerSearchInput"
+                  oninput="filtrarJogadores()"
+                  placeholder="Filtrar por nick ou facção..."
+                  class="bg-transparent text-xs outline-none w-full"
+                />
+              </div>
+              <select id="playerRoleFilter" onchange="filtrarJogadores()" class="surface-box rounded-xl px-3 py-2 text-xs outline-none">
+                <option value="todos">Todos os Jogadores</option>
+                <option value="staff">Staff / OP</option>
+                <option value="membro">Membros</option>
+              </select>
+
+              <label class="flex items-center gap-2 px-3 py-1.5 rounded-xl surface-box text-xs cursor-pointer" title="Simula se o seu personagem vinculado está online no servidor para validar o teleporte (TP)">
+                <input type="checkbox" id="simOperatorOnlineCheckbox" checked>
+                <span>Operador (<strong class="text-accent">Artzz</strong>) online no jogo</span>
+              </label>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                onclick="abrirModalWhitelist()"
+                class="btn-secondary px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5">
+                <i data-lucide="user-plus" class="w-4 h-4 text-accent"></i>
+                <span>Liberar na Whitelist</span>
+              </button>
+              <button
+                type="button"
+                onclick="abrirModalBroadcastPreview()"
+                class="btn-primary px-4 py-2 rounded-xl text-xs flex items-center gap-1.5">
+                <i data-lucide="megaphone" class="w-4 h-4"></i>
+                <span>Aviso Global (Broadcast)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="sortable" onclick="ordenarJogadoresPor('nick')">Jogador ↕</th>
+                  <th class="sortable" onclick="ordenarJogadoresPor('faccao')">Facção ↕</th>
+                  <th>Dimensão / Coordenadas</th>
+                  <th class="sortable" onclick="ordenarJogadoresPor('ping')">Ping ↕</th>
+                  <th>Sessão</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="playersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 3: FACÇÕES & RAIDS                                                -->
+      <!-- ===================================================================== -->
+      <section id="view-faccoes" class="space-y-5" hidden>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-2 card-box p-5 flex flex-col justify-between">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <span class="px-2.5 py-1 rounded-md bg-accent-soft text-[11px] font-bold uppercase tracking-wider">
+                  Controle de Combate & Explosões
+                </span>
+                <h3 class="font-display text-xl font-bold mt-2">Gerenciador de Janela de Raids</h3>
+                <p class="text-xs text-secondary mt-1">
+                  Controle quando explosões de TNT, canhões e invasões de claims estão liberados entre facções no servidor.
+                </p>
+              </div>
+              <button
+                type="button"
+                id="btnToggleRaidWindow"
+                onclick="alternarJanelaRaid()"
+                class="btn-danger px-4 py-2.5 rounded-xl text-xs font-display uppercase tracking-wider flex items-center gap-2">
+                <i data-lucide="flame" class="w-4 h-4"></i>
+                <span id="btnToggleRaidText">Iniciar Janela de Raid Agora</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-white/5">
+              <div class="surface-box rounded-xl p-3">
+                <span class="text-[11px] text-secondary uppercase font-semibold">Status Atual</span>
+                <p class="font-display font-bold text-sm text-emerald-400 mt-0.5" id="raidStatusLabel">Escudo de Base Ativo</p>
+              </div>
+              <div class="surface-box rounded-xl p-3">
+                <span class="text-[11px] text-secondary uppercase font-semibold">Dano de TNT / Mekanism</span>
+                <p class="font-display font-bold text-sm mt-0.5" id="raidTntLabel">Bloqueado em Claims</p>
+              </div>
+              <div class="surface-box rounded-xl p-3">
+                <span class="text-[11px] text-secondary uppercase font-semibold">Facções Ativas</span>
+                <p class="font-display font-bold text-sm text-accent mt-0.5">18 Facções Registradas</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-box p-5 flex flex-col justify-between">
+            <div>
+              <h4 class="font-display font-bold text-sm uppercase tracking-wider text-accent mb-3">
+                Regras Rápidas de Facção
+              </h4>
+              <div class="space-y-2.5 text-xs">
+                <label class="flex items-center justify-between p-2.5 rounded-lg surface-box cursor-pointer">
+                  <span>Fogo Amigo entre Aliados</span>
+                  <input type="checkbox" onchange="registrarAuditoria('REGRA_FACCAO', 'friendlyFire=' + this.checked)">
+                </label>
+                <label class="flex items-center justify-between p-2.5 rounded-lg surface-box cursor-pointer">
+                  <span>Proteção Offline (Grace Period)</span>
+                  <input type="checkbox" checked onchange="registrarAuditoria('REGRA_FACCAO', 'offlineShield=' + this.checked)">
+                </label>
+                <label class="flex items-center justify-between p-2.5 rounded-lg surface-box cursor-pointer">
+                  <span>Alertas de Invasão no Discord</span>
+                  <input type="checkbox" checked onchange="registrarAuditoria('REGRA_FACCAO', 'discordRaidWebhook=' + this.checked)">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-box p-5">
+          <h3 class="font-display font-bold text-base uppercase tracking-wider mb-4">Ranking & Monitoramento de Facções</h3>
+          <div class="overflow-x-auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Facção</th>
+                  <th>Líder</th>
+                  <th>Membros Online</th>
+                  <th>Power / Max</th>
+                  <th>Claims (Chunks)</th>
+                  <th>Status Base</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="factionsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 4: MODS, ERAS DECLARATIVAS & CHUNKS                               -->
+      <!-- ===================================================================== -->
+      <section id="view-mods" class="space-y-6" hidden>
+
+        <div class="card-box p-4 flex flex-wrap items-center justify-between gap-4 border-l-4 border-accent">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="cpu" class="w-5 h-5 text-accent shrink-0"></i>
+            <p class="text-xs">
+              <strong>Modo de Alteração Segura (Staging):</strong> Mudanças em Mods, Eras ou Perfis de Chunk aguardam revisão e aplicam com reinício controlado de 60s e rollback automático.
+            </p>
+          </div>
+          <button type="button" onclick="abrirModalPlanoReinicio()" class="btn-primary px-4 py-2 rounded-xl text-xs font-display uppercase tracking-wider">
+            Revisar Plano (<span id="modsTabPendingCounter">0</span>)
+          </button>
+        </div>
+
+        <div>
+          <h3 class="font-display font-bold text-base uppercase tracking-wider mb-3">Eras de Progressão (Manifestos Declarativos)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="erasGrid"></div>
+        </div>
+
+        <div class="card-box p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <h3 class="font-display font-bold text-base uppercase tracking-wider">Mods Instalados & Dependências</h3>
+              <p class="text-xs text-secondary">O sistema bloqueia automaticamente caso um mod ativo dependa de outro desativado.</p>
+            </div>
+            <p id="modDependencyError" class="text-xs font-bold text-red-400 bg-red-500/15 px-3 py-1.5 rounded-lg border border-red-500/30" hidden></p>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Mod</th>
+                  <th>Versão</th>
+                  <th>Estado na JVM</th>
+                  <th>Próximo Reinício</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="modsStagingTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <div class="lg:col-span-5 card-box p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between">
+                <h3 class="font-display font-bold text-base uppercase tracking-wider">Perfis de Limite por Chunk</h3>
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-accent-soft" title="Grava em forge-server.toml e mekanism.toml no próximo reinício">Grava em Disco · Exige Reinício</span>
+              </div>
+              <p class="text-xs text-secondary mt-1">
+                A leitura ao lado é segura em tempo real; trocar de perfil agenda a escrita nas configurações para o próximo reinício.
+              </p>
+
+              <div class="space-y-2.5 mt-4" id="chunkProfilesContainer">
+                <button type="button" onclick="selecionarPerfilChunk('Conservador')" data-profile="Conservador" class="chunk-profile-btn w-full p-3.5 rounded-xl surface-box text-left border transition">
+                  <div class="flex items-center justify-between">
+                    <span class="font-display font-bold text-sm">Perfil Conservador (Máxima Estabilidade)</span>
+                    <span class="text-[11px] font-mono-code text-secondary">Alvo: 20.0 TPS</span>
+                  </div>
+                  <p class="text-xs text-secondary mt-1">Create: 32 crafters/base · Mekanism: 1 reator/facção · Spawners: 4/chunk.</p>
+                </button>
+
+                <button type="button" onclick="selecionarPerfilChunk('Balanceado')" data-profile="Balanceado" class="chunk-profile-btn w-full p-3.5 rounded-xl surface-box text-left border border-accent bg-accent-soft transition">
+                  <div class="flex items-center justify-between">
+                    <span class="font-display font-bold text-sm">Perfil Balanceado (Em Execução)</span>
+                    <span class="text-[11px] font-mono-code">Ativo no Disco</span>
+                  </div>
+                  <p class="text-xs mt-1">Create: 64 crafters/base · Mekanism: 2 reatores/facção · Spawners: 8/chunk.</p>
+                </button>
+
+                <button type="button" onclick="selecionarPerfilChunk('Performance')" data-profile="Performance" class="chunk-profile-btn w-full p-3.5 rounded-xl surface-box text-left border transition">
+                  <div class="flex items-center justify-between">
+                    <span class="font-display font-bold text-sm">Perfil Performance (Fábricas Pesadas)</span>
+                    <span class="text-[11px] font-mono-code text-secondary">Alvo: Alto Throughput</span>
+                  </div>
+                  <p class="text-xs text-secondary mt-1">Create: 96 crafters/base · Mekanism: 3 reatores/facção · Spawners: 10/chunk.</p>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 card-box p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 class="font-display font-bold text-base uppercase tracking-wider">Diagnóstico de Chunks (Leitura em Tempo Real)</h3>
+                <p class="text-xs text-secondary">Mapa de calor e os 10 chunks com maior impacto no MSPT atual</p>
+              </div>
+              <button type="button" onclick="atualizarDiagnosticoChunks()" class="btn-secondary px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Atualizar Leitura
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+              <div class="md:col-span-4 surface-box p-3 rounded-xl flex flex-col items-center">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-secondary mb-2">Mapa de Calor (Região Central)</span>
+                <div id="chunkHeatmapGrid" class="grid grid-cols-6 gap-1 w-full aspect-square p-1 bg-black/40 rounded-lg"></div>
+                <div class="flex items-center justify-between w-full text-[10px] text-secondary mt-2">
+                  <span class="text-emerald-400">Normal (&lt;0.5ms)</span>
+                  <span class="text-red-400 font-bold">Crítico (&gt;1.5ms)</span>
+                </div>
+              </div>
+
+              <div class="md:col-span-8 overflow-x-auto max-h-64">
+                <table class="data-table text-xs">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Chunk (X, Z) & Dimensão</th>
+                      <th>Facção / Dono</th>
+                      <th>Entidades / Tiles</th>
+                      <th class="text-right">MSPT</th>
+                    </tr>
+                  </thead>
+                  <tbody id="topHeavyChunksBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 5: ARQUIVOS                                                       -->
+      <!-- ===================================================================== -->
+      <section id="view-arquivos" class="space-y-4" hidden>
+        <div class="card-box p-4 flex items-center justify-between gap-3 border-l-4 border-accent">
+          <div class="flex items-center gap-2.5 text-xs">
+            <i data-lucide="shield" class="w-4 h-4 text-accent shrink-0"></i>
+            <span>
+              <strong>Acesso Restrito à Raiz do Servidor:</strong> Esta aba depende de vínculo ativo com o diretório do servidor (aparece vazia caso não vinculado). Links simbólicos (symlinks) são bloqueados.
+            </span>
+          </div>
+        </div>
+
+        <div class="card-box p-5">
+          <div class="flex flex-wrap items-end justify-between gap-3 mb-4">
+            <div class="flex flex-wrap items-end gap-3">
+              <label class="flex flex-col gap-1">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Área do Servidor</span>
+                <select id="arquivosArea" onchange="carregarArquivosArea()" class="surface-box rounded-xl px-3.5 py-2 text-xs outline-none min-w-[220px]">
+                  <option value="servidor">Servidor Principal (/)</option>
+                  <option value="mods">Mods (/mods)</option>
+                  <option value="config">Configurações (/config)</option>
+                  <option value="logs">Logs (/logs)</option>
+                </select>
+              </label>
+              <button type="button" onclick="carregarArquivosArea()" class="btn-secondary px-3.5 py-2 rounded-xl text-xs">
+                Atualizar
+              </button>
+              <button type="button" onclick="criarNovaPastaArquivos()" class="btn-secondary px-3.5 py-2 rounded-xl text-xs">
+                Nova Pasta
+              </button>
+            </div>
+
+            <div>
+              <button type="button" onclick="document.getElementById('arquivosInput').click()" class="btn-primary px-4 py-2 rounded-xl text-xs font-display uppercase tracking-wider">
+                Enviar Arquivos
+              </button>
+              <input type="file" id="arquivosInput" multiple hidden>
+            </div>
+          </div>
+
+          <nav id="arquivosBreadcrumb" class="flex flex-wrap items-center gap-1.5 text-xs mb-3 text-accent font-mono-code">/servidor</nav>
+
+          <div class="overflow-x-auto">
+            <table class="data-table">
               <thead>
                 <tr>
                   <th>Nome</th>
                   <th>Tamanho</th>
                   <th>Modificado</th>
-                  <th style="text-align:right;">Ações</th>
+                  <th class="col-actions">Ações</th>
                 </tr>
               </thead>
-              <tbody id="arquivosLista">
-                <tr><td colspan="4" class="vazio">Selecione uma área.</td></tr>
-              </tbody>
+              <tbody id="arquivosLista"></tbody>
             </table>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
-  <footer class="app-footer">
-    <p>Monkey's Craft · Painel conectado ao backend. <span id="footerStatus">Verificando endpoints locais...</span></p>
-  </footer>
+      </section>
 
-  <div class="modal-fundo" id="editorFundo" hidden>
-    <div class="modal-caixa">
-      <div class="modal-topo">
-        <span class="modal-titulo" id="editorNome">arquivo</span>
-        <div class="modal-acoes">
-          <button type="button" class="btn-acao" id="editorCancelar">Fechar</button>
-          <button type="button" class="btn-acao btn-acao-primario" id="editorSalvar">Salvar</button>
+      <!-- ===================================================================== -->
+      <!-- ABA 6: BACKUPS                                                        -->
+      <!-- ===================================================================== -->
+      <section id="view-backups" class="space-y-4" hidden>
+        <div class="card-box p-5">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1">
+              <div class="surface-box p-3 rounded-xl">
+                <span class="text-[11px] uppercase text-secondary font-semibold">Backups Salvos</span>
+                <p class="font-display text-lg font-bold mt-0.5" id="kpi-backups-count">0</p>
+              </div>
+              <div class="surface-box p-3 rounded-xl">
+                <span class="text-[11px] uppercase text-secondary font-semibold">Espaço Ocupado</span>
+                <p class="font-display text-lg font-bold mt-0.5" id="kpi-backups-used">0 B</p>
+              </div>
+              <div class="surface-box p-3 rounded-xl">
+                <span class="text-[11px] uppercase text-secondary font-semibold">Livre em Disco</span>
+                <p class="font-display text-lg font-bold mt-0.5 text-emerald-400" id="kpi-disk-free">--</p>
+              </div>
+              <div class="surface-box p-3 rounded-xl">
+                <span class="text-[11px] uppercase text-secondary font-semibold">Último Backup</span>
+                <p class="text-xs font-bold mt-1 truncate" id="kpi-last-backup">Nenhum</p>
+              </div>
+            </div>
+
+            <button type="button" id="btn-create-backup" onclick="abrirModalCriarBackup()" class="btn-primary px-5 py-3 rounded-xl text-xs font-display uppercase tracking-wider">
+              + Criar Backup Configurável
+            </button>
+          </div>
+
+          <div id="bk-progresso-container" class="mb-5 p-4 rounded-xl surface-box space-y-2" hidden>
+            <div class="flex items-center justify-between text-xs font-bold">
+              <span id="bk-stage-label" class="text-accent">Etapa 1/4: Salvamento e Quiesce do Mundo (save-all flush)...</span>
+              <span id="bk-stage-percent" class="font-mono-code">25%</span>
+            </div>
+            <div class="progress-track">
+              <div id="bk-stage-bar" class="progress-fill w-1/4"></div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 text-[11px] text-secondary pt-1 font-mono-code">
+              <span class="text-accent font-bold">1. Salvamento</span>
+              <span>2. Snapshot</span>
+              <span>3. Checksum SHA-256</span>
+              <span>4. Envio Storage</span>
+            </div>
+          </div>
+
+          <div class="flex gap-2 border-b border-white/10 mb-4">
+            <button type="button" id="btn-subtab-backup-list" class="subtab-btn active" data-btab="lista" onclick="alternarSubAbaBackup('lista')">
+              Lista de Backups
+            </button>
+            <button type="button" id="btn-subtab-backup-inspect" class="subtab-btn" data-btab="arquivos" onclick="alternarSubAbaBackup('arquivos')">
+              Inspecionar Arquivos do Backup
+            </button>
+          </div>
+
+          <div id="bk-painel-lista" class="overflow-x-auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID do Backup</th>
+                  <th>Data</th>
+                  <th>Tipo / Escopo</th>
+                  <th>Tamanho</th>
+                  <th>Status / Checksum</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="bk-lista"></tbody>
+            </table>
+          </div>
+
+          <div id="bk-painel-arquivos" class="space-y-3" hidden>
+            <div class="flex flex-wrap gap-3">
+              <select id="bk-seletor" onchange="inspecionarBackupSelecionadoSubAba(this.value)" class="surface-box rounded-xl px-3.5 py-2 text-xs outline-none min-w-[240px]">
+                <option value="">Nenhum backup disponível</option>
+              </select>
+              <input type="text" id="bk-filtro" oninput="filtrarArvoreBackupSubAba()" placeholder="Filtrar caminho do arquivo no pacote..." class="surface-box rounded-xl px-3.5 py-2 text-xs outline-none flex-1">
+            </div>
+            <div id="bk-arvore" class="max-h-72 overflow-y-auto rounded-xl surface-box p-3 font-mono-code text-xs space-y-1">
+              <div class="p-2 text-secondary text-center">Selecione um backup salvo para listar os arquivos do pacote .zip.</div>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 7: CONFIGURAÇÕES, CONTAS UNIFICADAS & AUDITORIA                   -->
+      <!-- ===================================================================== -->
+      <section id="view-configuracoes" class="space-y-6" hidden>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="card-box p-5 space-y-4">
+            <div>
+              <h3 class="font-display font-bold text-base uppercase tracking-wider text-accent">Aparência & Tema do Painel</h3>
+              <p class="text-xs text-secondary mt-0.5">Alterne entre o Modo Escuro padrão e o Modo Branco convencional.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onclick="setTheme('dark')"
+                id="btnThemeDark"
+                class="p-4 rounded-xl surface-box border-2 border-accent text-left transition">
+                <div class="w-full h-14 rounded-lg bg-[#09090b] border border-white/10 mb-3 p-2 flex items-center gap-2">
+                  <div class="w-3 h-full bg-[#14141a] rounded"></div>
+                  <div class="flex-1 space-y-1.5">
+                    <div class="w-1/2 h-2 rounded bg-[#F0A62B]"></div>
+                    <div class="w-3/4 h-2 rounded bg-zinc-700"></div>
+                  </div>
+                </div>
+                <p class="font-bold text-xs">Modo Escuro (Padrão)</p>
+                <p class="text-[11px] text-secondary">Fundo escuro profundo com acento Âmbar #F0A62B</p>
+              </button>
+
+              <button
+                type="button"
+                onclick="setTheme('light')"
+                id="btnThemeLight"
+                class="p-4 rounded-xl surface-box border-2 border-transparent text-left transition">
+                <div class="w-full h-14 rounded-lg bg-slate-100 border border-slate-300 mb-3 p-2 flex items-center gap-2">
+                  <div class="w-3 h-full bg-white rounded border border-slate-200"></div>
+                  <div class="flex-1 space-y-1.5">
+                    <div class="w-1/2 h-2 rounded bg-[#F0A62B]"></div>
+                    <div class="w-3/4 h-2 rounded bg-slate-300"></div>
+                  </div>
+                </div>
+                <p class="font-bold text-xs">Modo Branco (Claro)</p>
+                <p class="text-[11px] text-secondary">Alto contraste diurno em tons claros</p>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-box p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-display font-bold text-base uppercase tracking-wider text-accent">Vínculo Minecraft & Skin</h3>
+                <p class="text-xs text-secondary mt-0.5">Prova de posse de UUID via código de uso único in-game (5 min).</p>
+              </div>
+              <span id="accountLinkBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                UUID Vinculado
+              </span>
+            </div>
+
+            <div class="p-4 rounded-xl surface-box flex flex-wrap items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <img
+                  id="profileLinkedSkinImg"
+                  src="https://mc-heads.net/body/Artzz/80"
+                  alt="Skin Vinculada"
+                  class="w-14 h-24 object-contain rounded-lg bg-black/30 p-1 border border-accent"
+                />
+                <div class="space-y-1">
+                  <p class="text-sm font-extrabold" id="profileLinkedNick">Artzz</p>
+                  <p class="text-[11px] font-mono-code text-secondary" id="profileLinkedUuid">UUID: 8f4e2b10-9c44-4a12-b891-00219a8c4d11</p>
+                  <p class="text-[11px] text-accent font-semibold">Grupo Servidor (Fonte Única): admin (Peso 90)</p>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <button type="button" onclick="atualizarSkinVinculada()" class="btn-primary px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>Atualizar Skin</span>
+                </button>
+                <button type="button" onclick="alternarEstadoVinculoDemo()" class="btn-secondary px-3.5 py-1.5 rounded-xl text-[11px]">
+                  Gerar Código de Vínculo
+                </button>
+              </div>
+            </div>
+
+            <div id="unlinkBoxFlow" class="p-4 rounded-xl surface-box border border-accent space-y-3" hidden>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span class="text-[11px] font-bold uppercase text-accent">Código Único (Expira em <span id="linkCodeTimer">05:00</span>)</span>
+                  <p class="text-xs text-secondary">Digite no chat do servidor Minecraft:</p>
+                </div>
+                <button type="button" onclick="gerarCodigoVinculo()" class="btn-primary px-3 py-1.5 rounded-lg text-xs">
+                  Novo Código
+                </button>
+              </div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-white/10 font-mono-code text-sm font-bold text-accent flex items-center justify-between">
+                <span id="linkCommandDisplay">/vincular MC-94F2-K8</span>
+                <button type="button" onclick="copiarTextoComFeedback(document.getElementById('linkCommandDisplay').textContent, this)" class="btn-secondary px-2.5 py-1 rounded text-xs">Copiar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gerenciamento de Contas (Com botão Remover exatamente abaixo de AÇÕES) -->
+        <div class="card-box p-5 space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <h3 class="font-display font-bold text-base uppercase tracking-wider text-accent">
+                Gerenciamento de Contas & Permissões
+              </h3>
+              <span
+                class="text-xs text-secondary cursor-help inline-flex items-center gap-1"
+                title="Guarda-corpos ativos: 1) Ninguém altera o próprio cargo; 2) Proibido remover/rebaixar o último owner; 3) Toda mudança grava no LuckPerms e exige motivo na auditoria.">
+                <i data-lucide="help-circle" class="w-4 h-4 text-accent"></i>
+              </span>
+            </div>
+            <span class="text-[11px] font-mono-code px-2.5 py-1 rounded surface-box">2FA Obrigatório: owner / admin</span>
+          </div>
+
+          <form id="formUsuario" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+            <label class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Usuário / Login</span>
+              <input type="text" id="campoUsuario" required placeholder="ex: paivaz01" class="surface-box rounded-xl px-3.5 py-2 text-xs outline-none">
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Senha</span>
+              <input type="password" id="campoSenha" required placeholder="mínimo 8 caracteres" class="surface-box rounded-xl px-3.5 py-2 text-xs outline-none">
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Cargo (Grupo Servidor)</span>
+              <select id="campoCargo" class="surface-box rounded-xl px-3.5 py-2 text-xs outline-none">
+                <option value="owner">Owner (Grupo: dono)</option>
+                <option value="admin">Admin (Grupo: admin)</option>
+                <option value="moderator">Moderator (Grupo: moderador)</option>
+                <option value="support">Support (Grupo: suporte)</option>
+              </select>
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Motivo (Auditoria)</span>
+              <input type="text" id="campoMotivoCargo" required placeholder="Ex: Promoção staff temporada 2" class="surface-box rounded-xl px-3.5 py-2 text-xs outline-none">
+            </label>
+            <div class="flex gap-2">
+              <button type="submit" class="btn-primary px-4 py-2 rounded-xl text-xs font-display uppercase tracking-wider w-full">
+                Salvar & Sincronizar
+              </button>
+            </div>
+          </form>
+
+          <div class="overflow-x-auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Operador</th>
+                  <th>UUID Vinculado</th>
+                  <th>Cargo Painel ↔ Grupo Jogo</th>
+                  <th>Status 2FA</th>
+                  <th>Criado em</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="corpoTabelaUsuarios"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TIMELINE DE AUDITORIA IMUTÁVEL -->
+        <div class="card-box p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-display font-bold text-base uppercase tracking-wider text-accent">
+                Registro de Auditoria Imutável (Quem fez o quê e por quê)
+              </h3>
+              <p class="text-xs text-secondary">Histórico protegido por trigger SQL contra edição ou exclusão.</p>
+            </div>
+            <button type="button" onclick="carregarAuditoriaBackend()" class="btn-secondary px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Atualizar Auditoria
+            </button>
+          </div>
+
+          <div class="overflow-x-auto max-h-64">
+            <table class="data-table text-xs">
+              <thead>
+                <tr>
+                  <th>Horário</th>
+                  <th>Operador</th>
+                  <th>Ação</th>
+                  <th>Alvo</th>
+                  <th>Motivo / Detalhes</th>
+                  <th>IP</th>
+                </tr>
+              </thead>
+              <tbody id="auditTimelineBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- PAINEL LATERAL DESLIZANTE (SLIDE-OVER DRAWER) DE INSPEÇÃO DE JOGADOR      -->
+  <!-- ========================================================================= -->
+  <div id="inspectDrawerBackdrop" class="drawer-backdrop" onclick="fecharDrawerInspecao()" hidden></div>
+  <aside id="inspectDrawerPanel" class="drawer-panel" hidden>
+    <div class="px-5 py-4 surface-box border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="scan-eye" class="w-5 h-5 text-accent"></i>
+        <h3 class="font-display font-bold text-base uppercase tracking-wider">Inspeção de Jogador</h3>
       </div>
-      <textarea class="modal-editor" id="editorTexto" spellcheck="false"></textarea>
+      <button type="button" onclick="fecharDrawerInspecao()" class="p-1.5 rounded-lg surface-box hover:border-accent">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-5 space-y-5 text-xs" id="inspectDrawerContent"></div>
+
+    <div class="p-4 surface-box border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+      <button type="button" id="drawerBtnTp" class="btn-primary px-3 py-2 rounded-lg text-xs flex-1">TP</button>
+      <button type="button" id="drawerBtnKick" class="btn-secondary px-3 py-2 rounded-lg text-xs flex-1">Kick</button>
+      <button type="button" id="drawerBtnBan" class="btn-danger px-3 py-2 rounded-lg text-xs flex-1">Ban</button>
+      <button type="button" id="drawerBtnWhois" class="btn-secondary px-3 py-2 rounded-lg text-xs">Whois</button>
+      <button type="button" id="drawerBtnDm" class="btn-secondary px-3 py-2 rounded-lg text-xs">Msg Privada</button>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL GENÉRICO DE AÇÕES AUDITADAS E DESTRUTIVAS                           -->
+  <!-- ========================================================================= -->
+  <div id="actionModalBackdrop" class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4" hidden>
+    <div class="card-box w-full max-w-lg overflow-hidden border border-accent">
+      <div class="px-5 py-3.5 surface-box border-b border-white/10 flex items-center justify-between">
+        <h3 id="actionModalTitle" class="font-display font-bold text-base uppercase tracking-wider text-accent">Confirmação</h3>
+        <button type="button" onclick="fecharActionModal()" class="text-secondary hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="actionModalBody" class="p-5 space-y-4 text-xs"></div>
     </div>
   </div>
 
-  <script>
-    /**
-     * MONKEY'S CRAFT · PAINEL DE CONTROLE
-     * Integração com a API REST e o WebSocket de logs do backend.
-     */
-    const API_BASE = (location.protocol === 'file:') ? 'http://localhost:3000' : location.origin;
-    const WS_URL = API_BASE.replace(/^http/, 'ws') + '/ws/logs';
-    const MAX_LINHAS = 400;
-    const STATUS_ROTULOS = {
-      connecting: 'Conectando...',
-      starting: 'Iniciando...',
-      stopping: 'Encerrando...',
-      online: 'Online',
-      offline: 'Offline',
-      disconnected: 'Desconectado',
-      error: 'Erro'
-    };
-    const ARIA_LABELS = {
-      minecraft: { ligar: 'Ligar servidor de Minecraft', desligar: 'Desligar servidor de Minecraft' },
-      discord: { ligar: 'Ligar bot do Discord', desligar: 'Desligar bot do Discord' }
-    };
-    const SERVICES = {
-      minecraft: { id: 'minecraft', name: "Monkey's Craft", status: 'disconnected', consoleId: 'minecraft' },
-      discord: { id: 'discord', name: 'Bot do Discord', status: 'disconnected', consoleId: 'discord-bot' }
-    };
-    // Controla reinícios em andamento para o polling não reativar o botão no meio do processo
-    const REINICIANDO = { minecraft: false, discord: false };
-    // Mapeia o nome da fonte de log do backend para o console da interface
-    const FONTE_PARA_CONSOLE = {
-      minecraft: 'minecraft',
-      bot: 'discord-bot',
-      discord: 'discord-events',
-      sistema: 'todos'
-    };
-    // Mapeia o nível do backend para as classes de cor do CSS original
-    const NIVEL_PARA_CLASSE = {
-      info: 'info',
-      erro: 'error',
-      error: 'error',
-      aviso: 'warn',
-      warn: 'warn',
-      sucesso: 'success',
-      success: 'success',
-      sistema: 'system',
-      system: 'system'
-    };
-    function setConnectionState(state) {
-      const dot = document.getElementById('panelConnectionDot');
-      const text = document.getElementById('panelConnectionText');
-      if (!dot || !text) return;
-      dot.className = 'status-dot';
-      if (state === 'online') {
-        dot.classList.add('online');
-        text.textContent = 'Conectado';
-      } else if (state === 'connecting' || state === 'reconnecting') {
-        dot.classList.add('connecting');
-        text.textContent = 'Reconectando...';
-      } else if (state === 'error') {
-        dot.classList.add('error');
-        text.textContent = 'Sem conexão';
-      } else if (state === 'disconnected') {
-        text.textContent = 'Desconectado';
-      } else {
-        text.textContent = 'Aguardando conexão...';
-      }
-    }
-    function atualizaAriaLabel(serviceId, estaAtivo) {
-      const toggleBtn = document.getElementById('toggle-' + serviceId);
-      if (!toggleBtn || !ARIA_LABELS[serviceId]) return;
-      toggleBtn.setAttribute('aria-label', estaAtivo ? ARIA_LABELS[serviceId].desligar : ARIA_LABELS[serviceId].ligar);
-    }
-    function normalizarStatus(status) {
-      const s = String(status || 'offline').toLowerCase();
-      if (s === 'iniciando' || s === 'starting') return 'starting';
-      if (s === 'parando' || s === 'stopping') return 'stopping';
-      if (s === 'online') return 'online';
-      if (s === 'erro' || s === 'error') return 'error';
-      if (s === 'offline') return 'offline';
-      return 'disconnected';
-    }
-    function aplicarEstadoServico(serviceId, estado) {
-      if (!estado) return;
-      const service = SERVICES[serviceId];
-      if (!service) return;
-      const status = normalizarStatus(estado.status);
-      service.status = status;
-      const dot = document.getElementById('dot-' + serviceId);
-      const label = document.getElementById('label-' + serviceId);
-      const toggleBtn = document.getElementById('toggle-' + serviceId);
-      const restartBtn = document.getElementById('restart-' + serviceId);
-      if (dot) {
-        dot.className = 'status-dot';
-        if (status === 'online') dot.classList.add('online');
-        else if (status === 'starting' || status === 'stopping') dot.classList.add('connecting');
-        else if (status === 'error') dot.classList.add('error');
-      }
-      if (label) label.textContent = STATUS_ROTULOS[status] || status;
-      if (toggleBtn) {
-        const ativo = (status === 'online' || status === 'starting');
-        toggleBtn.setAttribute('aria-checked', ativo ? 'true' : 'false');
-        atualizaAriaLabel(serviceId, ativo);
-      }
-      // Reiniciar só faz sentido com o serviço online.
-      // Durante um reinício em andamento o botão fica travado pelo próprio fluxo.
-      if (restartBtn && !REINICIANDO[serviceId]) {
-        restartBtn.disabled = (status !== 'online');
-      }
-      // O console de comandos do Minecraft só aceita entrada com o servidor online
-      if (serviceId === 'minecraft') {
-        const cmdInput = document.getElementById('mc-command-input');
-        const cmdSend = document.getElementById('mc-command-send');
-        const podeComandar = (status === 'online');
-        if (cmdInput) cmdInput.disabled = !podeComandar;
-        if (cmdSend) cmdSend.disabled = !podeComandar;
-      }
-      const stats = estado.stats || {};
-      if (serviceId === 'minecraft') {
-        const jogadores = document.getElementById('mc-stat-players');
-        const versao = document.getElementById('mc-stat-version');
-        const ping = document.getElementById('mc-stat-ping');
-        if (jogadores) {
-          const j = stats.jogadores;
-          const m = stats.maxJogadores;
-          jogadores.textContent = (j === undefined || j === null) ? '--/--' : j + '/' + (m === undefined || m === null ? '--' : m);
-        }
-        if (versao) versao.textContent = stats.versao || '--';
-        if (ping) ping.textContent = (stats.latencia === undefined || stats.latencia === null) ? '-- ms' : stats.latencia + ' ms';
-      } else {
-        const guilds = document.getElementById('dc-stat-guilds');
-        const comandos = document.getElementById('dc-stat-commands');
-        const ping = document.getElementById('dc-stat-ping');
-        if (guilds) guilds.textContent = (stats.servidores === undefined || stats.servidores === null) ? '--' : stats.servidores;
-        if (comandos) comandos.textContent = (stats.comandos === undefined || stats.comandos === null) ? '--' : stats.comandos;
-        if (ping) ping.textContent = (stats.latencia === undefined || stats.latencia === null) ? '-- ms' : stats.latencia + ' ms';
-      }
-    }
-    function aplicarStatusGeral(payload) {
-      if (!payload) return;
-      const mc = payload.minecraft || payload.mc;
-      const dc = payload.discord || payload.bot;
-      if (mc) aplicarEstadoServico('minecraft', mc);
-      if (dc) aplicarEstadoServico('discord', dc);
-      const rodando = [mc, dc].filter(function (s) {
-        return s && normalizarStatus(s.status) === 'online';
-      }).length;
-      const footer = document.getElementById('footerStatus');
-      if (footer) {
-        footer.textContent = rodando === 2
-          ? 'Status atual: todos os serviços online.'
-          : rodando === 1
-            ? 'Status atual: 1 de 2 serviços online.'
-            : 'Status atual: nenhum serviço online.';
-      }
-    }
-    function consultarStatus() {
-      fetch(API_BASE + '/api/status')
-        .then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        })
-        .then(aplicarStatusGeral)
-        .catch(function () {
-          setConnectionState('error');
-        });
-    }
-    function toggleServerStatus(serviceId) {
-      const service = SERVICES[serviceId];
-      if (!service) return;
-      const toggleBtn = document.getElementById('toggle-' + serviceId);
-      const dot = document.getElementById('dot-' + serviceId);
-      const label = document.getElementById('label-' + serviceId);
-      if (!toggleBtn || !label || !dot) return;
-      if (toggleBtn.classList.contains('is-loading')) return;
-      const ligado = toggleBtn.getAttribute('aria-checked') === 'true';
-      const acao = ligado ? 'stop' : 'start';
-      toggleBtn.classList.add('is-loading');
-      dot.className = 'status-dot connecting';
-      label.textContent = ligado ? STATUS_ROTULOS.stopping : STATUS_ROTULOS.starting;
-      fetch(API_BASE + '/api/services/' + serviceId + '/' + acao, { method: 'POST' })
-        .then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        })
-        .then(function (estado) {
-          aplicarEstadoServico(serviceId, estado);
-          appendLog(service.consoleId, 'info', service.name + ': ' + (acao === 'start' ? 'início' : 'parada') + ' solicitado.');
-        })
-        .catch(function (e) {
-          appendLog(service.consoleId, 'error', 'Falha ao ' + (acao === 'start' ? 'iniciar' : 'parar') + ' ' + service.name + ': ' + e.message);
-          consultarStatus();
-        })
-        .then(function () {
-          toggleBtn.classList.remove('is-loading');
-          setTimeout(consultarStatus, 1200);
-        });
-    }
-    function reiniciarServico(serviceId) {
-      const service = SERVICES[serviceId];
-      const btn = document.getElementById('restart-' + serviceId);
-      const toggleBtn = document.getElementById('toggle-' + serviceId);
-      const dot = document.getElementById('dot-' + serviceId);
-      const label = document.getElementById('label-' + serviceId);
-      if (!service || !btn || btn.disabled || REINICIANDO[serviceId]) return;
-      REINICIANDO[serviceId] = true;
-      btn.disabled = true;
-      btn.classList.add('girando');
-      if (toggleBtn) toggleBtn.classList.add('is-loading');
-      if (dot) dot.className = 'status-dot connecting';
-      if (label) label.textContent = STATUS_ROTULOS.stopping;
-      appendLog(service.consoleId, 'system', service.name + ': reinício solicitado.');
-      fetch(API_BASE + '/api/services/' + serviceId + '/restart', { method: 'POST' })
-        .then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        })
-        .then(function (estado) {
-          aplicarEstadoServico(serviceId, estado);
-          appendLog(service.consoleId, 'success', service.name + ': reinício concluído.');
-        })
-        .catch(function (e) {
-          appendLog(service.consoleId, 'error', 'Falha ao reiniciar ' + service.name + ': ' + e.message);
-          consultarStatus();
-        })
-        .then(function () {
-          REINICIANDO[serviceId] = false;
-          btn.classList.remove('girando');
-          if (toggleBtn) toggleBtn.classList.remove('is-loading');
-          setTimeout(consultarStatus, 1500);
-        });
-    }
-    function enviarComandoMinecraft() {
-      const input = document.getElementById('mc-command-input');
-      const btn = document.getElementById('mc-command-send');
-      if (!input || !btn) return;
-      const comando = input.value.trim();
-      if (!comando) return;
-      btn.disabled = true;
-      appendLog('minecraft', 'system', '> ' + comando);
-      fetch(API_BASE + '/api/console/minecraft', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comando: comando })
-      })
-        .then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        })
-        .then(function (dados) {
-          if (dados && dados.resposta) {
-            appendLog('minecraft', 'info', String(dados.resposta));
-          }
-          input.value = '';
-        })
-        .catch(function (e) {
-          appendLog('minecraft', 'error', 'Falha ao enviar comando: ' + e.message);
-        })
-        .then(function () {
-          btn.disabled = false;
-          input.focus();
-        });
-    }
-    function horaDe(quando) {
-      const d = quando ? new Date(quando) : new Date();
-      const valido = isNaN(d.getTime()) ? new Date() : d;
-      return [
-        String(valido.getHours()).padStart(2, '0'),
-        String(valido.getMinutes()).padStart(2, '0'),
-        String(valido.getSeconds()).padStart(2, '0')
-      ].join(':');
-    }
-    function appendLog(consoleId, level, message, quando) {
-      const destinos = (consoleId === 'todos')
-        ? ['discord-events', 'discord-bot', 'minecraft']
-        : [consoleId];
-      const classe = NIVEL_PARA_CLASSE[String(level || 'info').toLowerCase()] || 'info';
-      const rotulosNivel = {
-        system: '[SISTEMA]',
-        info: '[INFO]',
-        success: '[SUCESSO]',
-        error: '[ERRO]',
-        warn: '[AVISO]'
-      };
-      destinos.forEach(function (destino) {
-        const container = document.getElementById('console-' + destino);
-        if (!container) return;
-        const inicial = container.querySelector('.log-line.initial');
-        if (inicial) inicial.remove();
-        const elementoLinha = document.createElement('div');
-        elementoLinha.className = 'log-line';
-        const elementoHora = document.createElement('span');
-        elementoHora.className = 'log-time';
-        elementoHora.textContent = '[' + horaDe(quando) + ']';
-        const elementoNivel = document.createElement('span');
-        elementoNivel.className = 'log-level ' + classe;
-        elementoNivel.textContent = rotulosNivel[classe] || '[LOG]';
-        const elementoMsg = document.createElement('span');
-        elementoMsg.className = 'log-msg';
-        elementoMsg.textContent = message;
-        elementoLinha.appendChild(elementoHora);
-        elementoLinha.appendChild(elementoNivel);
-        elementoLinha.appendChild(elementoMsg);
-        container.appendChild(elementoLinha);
-        while (container.childElementCount > MAX_LINHAS) {
-          container.removeChild(container.firstChild);
-        }
-        const checkboxScroll = document.getElementById('autoscroll-' + destino);
-        if (!checkboxScroll || checkboxScroll.checked) {
-          container.scrollTop = container.scrollHeight;
-        }
-      });
-    }
-    function clearConsole(consoleId) {
-      const container = document.getElementById('console-' + consoleId);
-      if (!container) return;
-      container.innerHTML = '';
-      const linha = document.createElement('div');
-      linha.className = 'log-line initial';
-      const nivel = document.createElement('span');
-      nivel.className = 'log-level system';
-      nivel.textContent = '[SISTEMA]';
-      const msg = document.createElement('span');
-      msg.className = 'log-msg';
-      msg.textContent = 'Console limpo.';
-      linha.appendChild(nivel);
-      linha.appendChild(msg);
-      container.appendChild(linha);
-    }
-    function registrarLogDoBackend(entrada) {
-      if (!entrada) return;
-      const texto = entrada.mensagem || entrada.message || entrada.texto || entrada.msg;
-      if (!texto) return;
-      const fonte = String(entrada.fonte || entrada.canal || entrada.source || 'sistema').toLowerCase();
-      const consoleId = FONTE_PARA_CONSOLE[fonte] || 'todos';
-      const nivel = entrada.nivel || entrada.level || 'info';
-      const quando = entrada.ts || entrada.timestamp || entrada.time || Date.now();
-      appendLog(consoleId, nivel, texto, quando);
-    }
-    let tentativas = 0;
-    function conectarWebSocket() {
-      let ws;
-      try {
-        ws = new WebSocket(WS_URL);
-      } catch (e) {
-        setConnectionState('error');
-        return;
-      }
-      ws.onopen = function () {
-        tentativas = 0;
-        setConnectionState('online');
-        appendLog('todos', 'system', 'Conectado ao painel em tempo real.');
-      };
-      ws.onmessage = function (evento) {
-        let msg;
-        try {
-          msg = JSON.parse(evento.data);
-        } catch (e) {
-          return;
-        }
-        const tipo = msg.tipo || msg.type;
-        if (tipo === 'hello' || tipo === 'init') {
-          const dados = msg.dados || msg.data || {};
-          if (dados.servicos) aplicarStatusGeral(dados.servicos);
-          if (Array.isArray(dados.logs)) {
-            dados.logs.forEach(registrarLogDoBackend);
-          }
-          return;
-        }
-        if (tipo === 'status' || tipo === 'state') {
-          aplicarStatusGeral(msg.dados || msg.data || msg);
-          return;
-        }
-        if (tipo === 'log') {
-          registrarLogDoBackend(msg.dados || msg.data || msg);
-          return;
-        }
-        if (msg.dados && (msg.dados.fonte || msg.dados.mensagem)) {
-          registrarLogDoBackend(msg.dados);
-          return;
-        }
-        if (msg.fonte || msg.mensagem) {
-          registrarLogDoBackend(msg);
-        }
-      };
-      ws.onclose = function () {
-        tentativas++;
-        setConnectionState('reconnecting');
-        const espera = Math.min(15000, 1000 * tentativas);
-        setTimeout(conectarWebSocket, espera);
-      };
-      ws.onerror = function () {
-        try { ws.close(); } catch (e) {}
-      };
-    }
-    document.addEventListener('DOMContentLoaded', function () {
-      const btnLogout = document.getElementById('btnLogout');
-      if (btnLogout) {
-        btnLogout.addEventListener('click', async function () {
-          btnLogout.disabled = true;
-          try { await fetch('/auth/logout', { method: 'POST' }); } catch (e) {}
-          window.location.href = '/login.html';
-        });
-      }
-
-      (function aplicarCargo() {
-        fetch('/auth/me')
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (!d.logado) { window.location.href = '/login.html'; return; }
-
-            const cargo = d.cargo || 'visualizador';
-
-            document.querySelectorAll('[data-cargo]').forEach(function (el) {
-              const permitidos = String(el.dataset.cargo).split(/\s+/);
-              if (!permitidos.includes(cargo)) el.hidden = true;
-            });
-
-            const badge = document.getElementById('usuarioBadge');
-            if (badge) {
-              document.getElementById('nomeUsuario').textContent = d.usuario || '';
-              document.getElementById('cargoUsuario').textContent = '· ' + cargo;
-              badge.hidden = false;
-            }
-
-            const linkAdmin = document.getElementById('linkAdmin');
-            if (linkAdmin) linkAdmin.hidden = cargo !== 'admin';
-          })
-          .catch(function () {});
-      })();
-
-      const Arquivos = {
-        areas: [],
-        areaAtual: null,
-        caminhoAtual: '',
-        carregado: false,
-        arquivoAberto: null
-      };
-
-      const elArea = document.getElementById('arquivosArea');
-      const elLista = document.getElementById('arquivosLista');
-      const elBreadcrumb = document.getElementById('arquivosBreadcrumb');
-      const elAviso = document.getElementById('arquivosAviso');
-      const elInput = document.getElementById('arquivosInput');
-      const elEditorFundo = document.getElementById('editorFundo');
-      const elEditorTexto = document.getElementById('editorTexto');
-      const elEditorNome = document.getElementById('editorNome');
-
-      function avisoArquivos(texto, tipo) {
-        elAviso.textContent = texto;
-        elAviso.className = 'aviso-arquivos ' + (tipo === 'ok' ? 'ok' : 'erro');
-        elAviso.hidden = false;
-        clearTimeout(avisoArquivos.timer);
-        avisoArquivos.timer = setTimeout(function () { elAviso.hidden = true; }, 5000);
-      }
-
-      function tamanhoLegivel(bytes) {
-        if (!bytes) return '0 B';
-        const unidades = ['B', 'KB', 'MB', 'GB'];
-        let i = 0;
-        let v = bytes;
-        while (v >= 1024 && i < unidades.length - 1) { v /= 1024; i++; }
-        return v.toFixed(i === 0 ? 0 : 1) + ' ' + unidades[i];
-      }
-
-      function dataLegivel(iso) {
-        if (!iso) return '—';
-        const d = new Date(iso);
-        if (isNaN(d.getTime())) return '—';
-        return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      }
-
-      async function pedirArquivos(url, opcoes) {
-        const r = await fetch(url, opcoes);
-
-        if (r.status === 401) {
-          window.location.href = '/login.html?expirado=1';
-          throw new Error('Sessão expirada.');
-        }
-
-        const d = await r.json().catch(function () { return {}; });
-        if (!r.ok) throw new Error(d.erro || ('Erro ' + r.status + ' na operação.'));
-        return d;
-      }
-
-      function urlArquivos(rota, params) {
-        const q = new URLSearchParams(params || {});
-        return '/api/files/' + rota + '?' + q.toString();
-      }
-
-      async function carregarAreas() {
-        try {
-          const d = await pedirArquivos('/api/files/areas');
-          Arquivos.areas = d.areas || [];
-
-          elArea.innerHTML = '';
-          Arquivos.areas.forEach(function (a) {
-            const o = document.createElement('option');
-            o.value = a.id;
-            o.textContent = a.rotulo;
-            elArea.appendChild(o);
-          });
-
-          if (!Arquivos.areas.length) {
-            elLista.innerHTML = '<tr><td colspan="4" class="vazio">Nenhuma área configurada.</td></tr>';
-            return;
-          }
-
-          Arquivos.areaAtual = Arquivos.areas[0].id;
-          elArea.value = Arquivos.areaAtual;
-          Arquivos.caminhoAtual = '';
-          await listarArquivos();
-        } catch (e) {
-          avisoArquivos(e.message, 'erro');
-        }
-      }
-
-      async function listarArquivos() {
-        if (!Arquivos.areaAtual) return;
-
-        elLista.innerHTML = '<tr><td colspan="4" class="vazio">Carregando...</td></tr>';
-
-        try {
-          const d = await pedirArquivos(urlArquivos('listar', {
-            area: Arquivos.areaAtual,
-            caminho: Arquivos.caminhoAtual
-          }));
-
-          Arquivos.caminhoAtual = d.caminho || '';
-          montarBreadcrumb(Arquivos.caminhoAtual);
-          montarLista(d.itens || []);
-        } catch (e) {
-          elLista.innerHTML = '<tr><td colspan="4" class="vazio">Não foi possível listar.</td></tr>';
-          avisoArquivos(e.message, 'erro');
-        }
-      }
-
-      function montarBreadcrumb(caminho) {
-        elBreadcrumb.innerHTML = '';
-
-        const raiz = document.createElement('button');
-        raiz.type = 'button';
-        raiz.textContent = 'raiz';
-        raiz.addEventListener('click', function () {
-          Arquivos.caminhoAtual = '';
-          listarArquivos();
-        });
-        elBreadcrumb.appendChild(raiz);
-
-        const partes = String(caminho || '').split('/').filter(Boolean);
-        let acumulado = '';
-
-        partes.forEach(function (parte) {
-          acumulado = acumulado ? acumulado + '/' + parte : parte;
-          const alvo = acumulado;
-
-          const sep = document.createElement('span');
-          sep.className = 'sep';
-          sep.textContent = '/';
-          elBreadcrumb.appendChild(sep);
-
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.textContent = parte;
-          b.addEventListener('click', function () {
-            Arquivos.caminhoAtual = alvo;
-            listarArquivos();
-          });
-          elBreadcrumb.appendChild(b);
-        });
-      }
-
-      function montarLista(itens) {
-        elLista.innerHTML = '';
-
-        if (!itens.length) {
-          elLista.innerHTML = '<tr><td colspan="4" class="vazio">Pasta vazia.</td></tr>';
-          return;
-        }
-
-        itens.forEach(function (item) {
-          const tr = document.createElement('tr');
-          const caminhoItem = Arquivos.caminhoAtual
-            ? Arquivos.caminhoAtual + '/' + item.nome
-            : item.nome;
-
-          const tdNome = document.createElement('td');
-          const botaoNome = document.createElement('button');
-          botaoNome.type = 'button';
-          botaoNome.className = 'arquivo-nome' + (item.pasta ? ' pasta' : '');
-          botaoNome.textContent = (item.pasta ? '📁 ' : '📄 ') + item.nome;
-          botaoNome.addEventListener('click', function () {
-            if (item.pasta) {
-              Arquivos.caminhoAtual = caminhoItem;
-              listarArquivos();
-            } else if (item.editavel) {
-              abrirEditor(caminhoItem, item.nome);
-            } else {
-              baixarArquivo(caminhoItem);
-            }
-          });
-          tdNome.appendChild(botaoNome);
-
-          const tdTamanho = document.createElement('td');
-          tdTamanho.textContent = item.pasta ? '—' : tamanhoLegivel(item.tamanho);
-
-          const tdData = document.createElement('td');
-          tdData.textContent = dataLegivel(item.modificado);
-
-          const tdAcoes = document.createElement('td');
-          const divAcoes = document.createElement('div');
-          divAcoes.className = 'arquivo-acoes';
-
-          if (!item.pasta) {
-            if (item.editavel) {
-              const bEditar = document.createElement('button');
-              bEditar.type = 'button';
-              bEditar.className = 'btn-acao';
-              bEditar.textContent = 'Editar';
-              bEditar.addEventListener('click', function () { abrirEditor(caminhoItem, item.nome); });
-              divAcoes.appendChild(bEditar);
-            }
-
-            const bBaixar = document.createElement('button');
-            bBaixar.type = 'button';
-            bBaixar.className = 'btn-acao';
-            bBaixar.textContent = 'Baixar';
-            bBaixar.addEventListener('click', function () { baixarArquivo(caminhoItem); });
-            divAcoes.appendChild(bBaixar);
-          }
-
-          const bRenomear = document.createElement('button');
-          bRenomear.type = 'button';
-          bRenomear.className = 'btn-acao';
-          bRenomear.textContent = 'Renomear';
-          bRenomear.addEventListener('click', function () { renomearItem(caminhoItem, item.nome); });
-          divAcoes.appendChild(bRenomear);
-
-          const bApagar = document.createElement('button');
-          bApagar.type = 'button';
-          bApagar.className = 'btn-acao btn-acao-perigo';
-          bApagar.textContent = 'Apagar';
-          bApagar.addEventListener('click', function () { apagarItem(caminhoItem, item.nome, item.pasta); });
-          divAcoes.appendChild(bApagar);
-
-          tdAcoes.appendChild(divAcoes);
-
-          tr.appendChild(tdNome);
-          tr.appendChild(tdTamanho);
-          tr.appendChild(tdData);
-          tr.appendChild(tdAcoes);
-
-          elLista.appendChild(tr);
-        });
-      }
-
-      async function abrirEditor(caminho, nome) {
-        try {
-          const d = await pedirArquivos(urlArquivos('ler', {
-            area: Arquivos.areaAtual,
-            caminho: caminho
-          }));
-
-          Arquivos.arquivoAberto = caminho;
-          elEditorNome.textContent = nome;
-          elEditorTexto.value = d.conteudo || '';
-          elEditorFundo.hidden = false;
-          elEditorTexto.focus();
-        } catch (e) {
-          avisoArquivos(e.message, 'erro');
-        }
-      }
-
-      async function salvarEditor() {
-        if (!Arquivos.arquivoAberto) return;
-
-        const botao = document.getElementById('editorSalvar');
-        botao.disabled = true;
-
-        try {
-          await pedirArquivos('/api/files/salvar', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              area: Arquivos.areaAtual,
-              caminho: Arquivos.arquivoAberto,
-              conteudo: elEditorTexto.value
-            })
-          });
-
-          elEditorFundo.hidden = true;
-          Arquivos.arquivoAberto = null;
-          avisoArquivos('Arquivo salvo.', 'ok');
-          listarArquivos();
-        } catch (e) {
-          avisoArquivos(e.message, 'erro');
-        } finally {
-          botao.disabled = false;
-        }
-      }
-
-      async function apagarItem(caminho, nome, pasta) {
-        const aviso = pasta
-          ? 'Apagar a pasta "' + nome + '" e TUDO dentro dela? Isso não pode ser desfeito.'
-          : 'Apagar o arquivo "' + nome + '"? Isso não pode ser desfeito.';
-
-        if (!confirm(aviso)) return;
-
-        try {
-          await pedirArquivos('/api/files/apagar', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ area: Arquivos.areaAtual, caminho: caminho })
-          });
-
-          avisoArquivos('"' + nome + '" apagado.', 'ok');
-          listarArquivos();
-        } catch (e) {
-          avisoArquivos(e.message, 'erro');
-        }
-      }
-
-      async function renomearItem(caminho, nome) {
-        const novo = prompt('Novo nome para "' + nome + '":', nome);
-        if (!novo || novo === nome) return;
-
-        try {
-          await pedirArquivos('/api/files/renomear', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ area: Arquivos.areaAtual, caminho: caminho, novo: novo })
-          });
-
-          avisoArquivos('Renomeado para "' + novo + '".', 'ok');
-          listarArquivos();
-        } catch (e) {
-          avisoArquivos(e.message, 'erro');
-        }
-      }
-
-      async function criarPasta() {
-        const nome = prompt('Nome da nova pasta:');
-        if (!nome) return;
-
-        try {
-          await pedirArquivos('/api/files/pasta', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ area: Arquivos.areaAtual, caminho: Arquivos.caminhoAtual, nome: nome })
-          });
-
-          avisoArquivos('Pasta "' + nome + '" criada.', 'ok');
-          listarArquivos();
-        } catch (e) {
-          avisoArquivos(e.message, 'erro');
-        }
-      }
-
-      async function enviarArquivos(lista) {
-        if (!lista || !lista.length) return;
-
-        const dados = new FormData();
-        Array.from(lista).forEach(function (f) { dados.append('arquivos', f); });
-
-        try {
-          await pedirArquivos(urlArquivos('upload', {
-            area: Arquivos.areaAtual,
-            caminho: Arquivos.caminhoAtual
-          }), { method: 'POST', body: dados });
-
-          avisoArquivos(lista.length + (lista.length === 1 ? ' arquivo enviado.' : ' arquivos enviados.'), 'ok');
-          listarArquivos();
-        } catch (e) {
-          avisoArquivos(e.message, 'erro');
-        }
-      }
-
-      function baixarArquivo(caminho) {
-        window.location.href = urlArquivos('baixar', {
-          area: Arquivos.areaAtual,
-          caminho: caminho
-        });
-      }
-
-      elArea.addEventListener('change', function () {
-        Arquivos.areaAtual = elArea.value;
-        Arquivos.caminhoAtual = '';
-        listarArquivos();
-      });
-
-      document.getElementById('arquivosAtualizar').addEventListener('click', listarArquivos);
-      document.getElementById('arquivosNovaPasta').addEventListener('click', criarPasta);
-      document.getElementById('arquivosEnviar').addEventListener('click', function () { elInput.click(); });
-      elInput.addEventListener('change', function () {
-        enviarArquivos(elInput.files);
-        elInput.value = '';
-      });
-
-      document.getElementById('editorSalvar').addEventListener('click', salvarEditor);
-      document.getElementById('editorCancelar').addEventListener('click', function () {
-        elEditorFundo.hidden = true;
-        Arquivos.arquivoAberto = null;
-      });
-      elEditorFundo.addEventListener('click', function (evento) {
-        if (evento.target === elEditorFundo) {
-          elEditorFundo.hidden = true;
-          Arquivos.arquivoAberto = null;
-        }
-      });
-      elEditorTexto.addEventListener('keydown', function (evento) {
-        if (evento.key === 'Tab') {
-          evento.preventDefault();
-          const inicio = this.selectionStart;
-          const fim = this.selectionEnd;
-          this.value = this.value.slice(0, inicio) + '  ' + this.value.slice(fim);
-          this.selectionStart = this.selectionEnd = inicio + 2;
-        }
-      });
-
-      document.querySelectorAll('.tab-btn').forEach(function (botao) {
-        botao.addEventListener('click', function () {
-          document.querySelectorAll('.tab-btn').forEach(function (b) {
-            const ativo = b === botao;
-            b.classList.toggle('ativo', ativo);
-            b.setAttribute('aria-selected', ativo ? 'true' : 'false');
-          });
-
-          document.querySelectorAll('.tab-painel').forEach(function (p) {
-            p.hidden = p.id !== 'aba-' + botao.dataset.aba;
-          });
-
-          if (botao.dataset.aba === 'arquivos' && !Arquivos.carregado) {
-            Arquivos.carregado = true;
-            carregarAreas();
-          }
-        });
-      });
-
-      setConnectionState('initial');
-      atualizaAriaLabel('minecraft', false);
-      atualizaAriaLabel('discord', false);
-      document.querySelectorAll('.custom-switch').forEach(function (botao) {
-        botao.addEventListener('keydown', function (evento) {
-          if (evento.key === ' ' || evento.key === 'Enter') {
-            evento.preventDefault();
-            botao.click();
-          }
-        });
-      });
-      const cmdInput = document.getElementById('mc-command-input');
-      if (cmdInput) {
-        cmdInput.addEventListener('keydown', function (evento) {
-          if (evento.key === 'Enter') {
-            evento.preventDefault();
-            enviarComandoMinecraft();
-          }
-        });
-      }
-      consultarStatus();
-      conectarWebSocket();
-      setInterval(consultarStatus, 4000);
-    });
-  </script>
+  <!-- ========================================================================= -->
+  <!-- COMMAND PALETTE (CTRL + K)                                                -->
+  <!-- ========================================================================= -->
+  <div id="cmdPaletteBackdrop" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-start justify-center pt-24 p-4" onclick="if(event.target===this) fecharCommandPalette()" hidden>
+    <div class="card-box w-full max-w-xl overflow-hidden border border-accent shadow-2xl">
+      <div class="p-3.5 surface-box border-b border-white/10 flex items-center gap-3">
+        <i data-lucide="terminal" class="w-4 h-4 text-accent"></i>
+        <input
+          type="text"
+          id="cmdPaletteInput"
+          oninput="filtrarCommandPalette()"
+          placeholder="Digite uma aba, jogador ou ação (ex: Backups, Banir, Perfil Performance, Era)..."
+          class="bg-transparent text-xs outline-none w-full"
+        />
+        <kbd class="px-1.5 py-0.5 text-[10px] font-mono-code rounded bg-black/40 border border-white/10">ESC</kbd>
+      </div>
+      <div id="cmdPaletteResults" class="max-h-80 overflow-y-auto p-2 space-y-1 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SCRIPTS DO FRONTEND                                                       -->
+  <!-- ========================================================================= -->
+  
+  <!-- ========================================================================= -->
+  <!-- MODAL EDITOR DE ARQUIVOS (TEXTO / CONFIGURAÇÕES)                          -->
+  <!-- ========================================================================= -->
+  <div id="modalEditorArquivo" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" hidden>
+    <div class="card-box w-full max-w-5xl h-[85vh] flex flex-col border border-accent shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 surface-box border-b border-white/10 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <i data-lucide="file-code-2" class="w-5 h-5 text-accent"></i>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-mono-code font-bold text-sm text-main" id="editorArquivoCaminhoCompleto">server.properties</h3>
+              <span id="editorArquivoAreaBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-accent-soft uppercase">Área: Servidor</span>
+            </div>
+            <p class="text-[11px] text-secondary mt-0.5" id="editorArquivoInfoTamanho">Tamanho: 4.2 KB · Formato editável de texto plano</p>
+          </div>
+        </div>
+        <button type="button" onclick="fecharEditorArquivo()" class="p-1.5 rounded-lg surface-box text-secondary hover:text-white hover:border-accent">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 p-4 bg-[#0a0a0d] overflow-hidden flex flex-col">
+        <textarea
+          id="editorArquivoConteudo"
+          spellcheck="false"
+          class="w-full flex-1 bg-transparent text-white font-mono-code text-xs leading-relaxed outline-none resize-none border border-white/10 rounded-xl p-4 focus:border-accent"
+          placeholder="Carregando conteúdo do arquivo..."
+        ></textarea>
+      </div>
+
+      <div class="px-5 py-3 surface-box border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-4 text-xs">
+          <span id="editorArquivoStatus" class="font-semibold text-secondary">Nenhuma alteração não salva</span>
+          <span class="text-secondary font-mono-code text-[11px]">Atalhos: <kbd class="px-1.5 py-0.5 rounded bg-black/40 border border-white/10">Ctrl+S</kbd> Salvar · <kbd class="px-1.5 py-0.5 rounded bg-black/40 border border-white/10">ESC</kbd> Fechar</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="fecharEditorArquivo()" class="btn-secondary px-4 py-2 rounded-xl text-xs font-semibold">
+            Cancelar
+          </button>
+          <button type="button" id="btnSalvarArquivo" onclick="salvarConteudoArquivo()" class="btn-primary px-5 py-2 rounded-xl text-xs font-display uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i>
+            <span>Salvar Alterações</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL INSPETOR DE CONTEÚDO DE BACKUP (ZIP)                                -->
+  <!-- ========================================================================= -->
+  <div id="modalInspetorBackup" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" hidden>
+    <div class="card-box w-full max-w-5xl h-[85vh] flex flex-col border border-accent shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 surface-box border-b border-white/10 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-accent/20 border border-accent flex items-center justify-center text-accent">
+            <i data-lucide="archive" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-mono-code font-bold text-sm text-main" id="inspetorBackupId">—</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Pacote Verificado</span>
+            </div>
+            <p class="text-[11px] text-secondary mt-0.5" id="inspetorBackupMeta">Aguardando seleção de backup...</p>
+          </div>
+        </div>
+        <button type="button" onclick="fecharInspetorBackup()" class="p-1.5 rounded-lg surface-box text-secondary hover:text-white hover:border-accent">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-0 overflow-hidden bg-[#0a0a0d]">
+        <div class="p-4 border-r border-white/10 flex flex-col h-full overflow-hidden space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Arquivos no Pacote</span>
+            <span class="font-mono-code text-[11px] text-accent" id="inspetorBackupTotalArquivos">Carregando índice...</span>
+          </div>
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-secondary absolute left-3 top-2.5"></i>
+            <input
+              type="text"
+              id="inspetorBackupBusca"
+              oninput="filtrarArquivosNoBackup()"
+              placeholder="Buscar arquivo no zip (ex: properties, toml, yml)..."
+              class="surface-box rounded-xl pl-9 pr-3.5 py-2 text-xs outline-none w-full"
+            />
+          </div>
+          <div id="inspetorBackupListaArquivos" class="flex-1 overflow-y-auto space-y-1 pr-1 font-mono-code text-xs"></div>
+        </div>
+
+        <div class="p-4 flex flex-col h-full overflow-hidden space-y-2">
+          <div class="flex items-center justify-between pb-2 border-b border-white/5">
+            <span class="font-mono-code text-xs font-bold text-accent truncate" id="inspetorBackupArquivoNome">Selecione um arquivo da lista</span>
+            <span class="text-[10px] text-secondary" id="inspetorBackupArquivoTamanho">-</span>
+          </div>
+          <div class="flex-1 overflow-y-auto bg-black/40 rounded-xl p-3 border border-white/10">
+            <pre id="inspetorBackupConteudoTexto" class="font-mono-code text-[11px] text-secondary leading-relaxed select-text whitespace-pre-wrap">Clique em um arquivo de texto (.properties, .json, .yml, .toml, .log) à esquerda para inspecionar seu conteúdo gravado sem precisar descompactar o backup inteiro.</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 surface-box border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+        <span class="text-xs text-secondary">Inspeção segura de arquivos internos de até 2 MB sem extração.</span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="fecharInspetorBackup()" class="btn-secondary px-4 py-2 rounded-xl text-xs font-semibold">
+            Fechar
+          </button>
+          <button type="button" id="btnRestaurarDesteBackup" onclick="confirmarRestauracaoDesteBackup()" class="btn-danger px-4 py-2 rounded-xl text-xs font-display uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="history" class="w-3.5 h-3.5"></i>
+            <span>Restaurar Este Backup</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL AVISO GLOBAL (BROADCAST COM PREVIEW)                                -->
+  <!-- ========================================================================= -->
+  <div id="modalBroadcast" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" hidden>
+    <div class="card-box w-full max-w-lg border border-accent shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 surface-box border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="megaphone" class="w-5 h-5 text-accent"></i>
+          <h3 class="font-display font-bold text-sm uppercase tracking-wider text-accent">Aviso Global para o Servidor</h3>
+        </div>
+        <button type="button" onclick="fecharModalBroadcast()" class="text-secondary hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Prefixo</span>
+            <select id="broadcastPrefixo" onchange="atualizarPreviewBroadcast()" class="surface-box rounded-xl px-3 py-2 text-xs outline-none">
+              <option value="[AVISO]">[AVISO]</option>
+              <option value="[EVENTO]">[EVENTO]</option>
+              <option value="[MANUTENÇÃO]">[MANUTENÇÃO]</option>
+              <option value="[STAFF]">[STAFF]</option>
+              <option value="[MONKEY'S CRAFT]">[MONKEY'S CRAFT]</option>
+            </select>
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Cor do Prefixo</span>
+            <select id="broadcastCor" onchange="atualizarPreviewBroadcast()" class="surface-box rounded-xl px-3 py-2 text-xs outline-none">
+              <option value="gold">Dourado / Âmbar (Gold)</option>
+              <option value="red">Vermelho Alerta (Red)</option>
+              <option value="aqua">Azul Claro (Aqua)</option>
+              <option value="green">Verde Sucesso (Green)</option>
+              <option value="yellow">Amarelo (Yellow)</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Texto do Anúncio</span>
+          <textarea
+            id="broadcastTexto"
+            rows="3"
+            oninput="atualizarPreviewBroadcast()"
+            placeholder="Digite a mensagem que todos os jogadores verão no chat in-game..."
+            class="surface-box rounded-xl p-3 text-xs outline-none resize-none"
+          ></textarea>
+        </label>
+
+        <div class="space-y-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-secondary">Preview no Chat do Minecraft:</span>
+          <div class="p-3 rounded-xl bg-black/60 border border-white/10 font-mono-code text-xs flex items-center gap-2">
+            <span id="broadcastPreviewPrefix" class="font-bold text-amber-400">[AVISO]</span>
+            <span id="broadcastPreviewText" class="text-white">Digite uma mensagem acima...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 surface-box border-t border-white/10 flex items-center justify-end gap-2">
+        <button type="button" onclick="fecharModalBroadcast()" class="btn-secondary px-4 py-2 rounded-xl text-xs">
+          Cancelar
+        </button>
+        <button type="button" onclick="enviarBroadcastReal()" class="btn-primary px-5 py-2 rounded-xl text-xs font-display uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>Transmitir Globalmente</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL GESTÃO DE WHITELIST                                                 -->
+  <!-- ========================================================================= -->
+  <div id="modalWhitelist" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" hidden>
+    <div class="card-box w-full max-w-lg border border-accent shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 surface-box border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-5 h-5 text-accent"></i>
+          <h3 class="font-display font-bold text-sm uppercase tracking-wider text-accent">Gestão da Whitelist do Servidor</h3>
+        </div>
+        <button type="button" onclick="fecharModalWhitelist()" class="text-secondary hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 text-xs">
+        <form id="formAdicionarWhitelist" onsubmit="event.preventDefault(); adicionarNickWhitelist();" class="flex gap-2">
+          <input
+            type="text"
+            id="whitelistNovoNick"
+            placeholder="Digite o nick exato (ex: Notch)..."
+            required
+            class="surface-box rounded-xl px-3.5 py-2 text-xs outline-none flex-1 font-mono-code"
+          />
+          <button type="submit" class="btn-primary px-4 py-2 rounded-xl text-xs font-display uppercase tracking-wider">
+            + Liberar Nick
+          </button>
+        </form>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-secondary">Jogadores Cadastrados</span>
+            <button type="button" onclick="carregarListaWhitelist()" class="text-accent text-[11px] hover:underline">Atualizar</button>
+          </div>
+          <div id="whitelistListaCorpo" class="max-h-60 overflow-y-auto surface-box rounded-xl p-2 font-mono-code space-y-1"></div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 surface-box border-t border-white/10 flex items-center justify-end">
+        <button type="button" onclick="fecharModalWhitelist()" class="btn-secondary px-4 py-2 rounded-xl text-xs">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL CONFIRMAÇÃO DE TELEPORTE INTERDIMENSIONAL                           -->
+  <!-- ========================================================================= -->
+  <div id="modalConfirmarDimensaoTp" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" hidden>
+    <div class="card-box w-full max-w-md border-2 border-yellow-500/80 shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 surface-box border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-yellow-400">
+          <i data-lucide="compass" class="w-5 h-5"></i>
+          <h3 class="font-display font-bold text-sm uppercase tracking-wider">Troca de Dimensão</h3>
+        </div>
+        <button type="button" onclick="fecharModalDimensaoTp()" class="text-secondary hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-3 text-xs">
+        <p class="text-secondary">
+          Você está prestes a teleportar seu operador para um jogador que está em uma dimensão diferente da sua:
+        </p>
+        <div class="p-3 rounded-xl surface-box space-y-2 font-mono-code text-[11px]">
+          <div class="flex justify-between">
+            <span class="text-secondary">Sua Dimensão:</span>
+            <span id="tpDimensaoOrigem" class="text-white font-bold">minecraft:overworld</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Dimensão do Alvo:</span>
+            <span id="tpDimensaoDestino" class="text-accent font-bold">minecraft:the_nether</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Coordenadas:</span>
+            <span id="tpCoordsDestino" class="text-emerald-400">X: 45, Y: 60, Z: 110</span>
+          </div>
+        </div>
+        <p class="text-yellow-300 font-semibold text-[11px]">
+          ⚠️ O teleporte carregará novos chunks na dimensão de destino. Confirma a viagem interdimensional?
+        </p>
+      </div>
+
+      <div class="px-5 py-3 surface-box border-t border-white/10 flex items-center justify-end gap-2">
+        <button type="button" onclick="fecharModalDimensaoTp()" class="btn-secondary px-4 py-2 rounded-xl text-xs">
+          Cancelar
+        </button>
+        <button type="button" id="btnConfirmarTpDimensao" class="btn-primary px-5 py-2 rounded-xl text-xs font-display uppercase tracking-wider">
+          Confirmar Teleporte
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/panel.js"></script>
 </body>
 </html>
